@@ -1,0 +1,9 @@
+bin/
+obj/
+nupkg/
+.vs/
+.idea/
+.vscode/
+*.user
+*.userosscache
+*.sln.docstates

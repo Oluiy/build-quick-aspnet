@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>create_aspnet_app</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+  <PackAsTool>true</PackAsTool>
+  <ToolCommandName>create-aspnet-app</ToolCommandName>
+  <PackageId>BuildQuickPkg</PackageId>
+  <Version>1.0.4</Version>
+
+  <Authors>Israel</Authors>
+  <Description>Interactive CLI that scaffolds a Clean Architecture ASP.NET Core solution (API, Application, Domain, Infrastructure) in seconds.</Description>
+  <PackageTags>dotnet;aspnetcore;clean-architecture;scaffolding;cli;template</PackageTags>
+  <PackageProjectUrl>https://github.com/YOUR-USERNAME/create-aspnet-app</PackageProjectUrl>
+  <RepositoryUrl>https://github.com/YOUR-USERNAME/create-aspnet-app</RepositoryUrl>
+  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  <PackageReadmeFile>README.md</PackageReadmeFile>
+ </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" Version="0.57.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
