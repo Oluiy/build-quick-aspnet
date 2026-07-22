@@ -39,7 +39,7 @@ internal sealed class ProjectStructure
         ApplicationProject = $"{projectName}_Application";
         DomainProject = $"{projectName}_Domain";
         InfrastructureProject = $"{projectName}_Infrastructure";
-        TestProject = $"{ApiProject}.Tests";
+        TestProject = $"{projectName}.UnitTests";
     }
 
     /// <summary>

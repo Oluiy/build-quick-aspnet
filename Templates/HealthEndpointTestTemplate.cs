@@ -6,13 +6,13 @@ namespace create_aspnet_app.Templates;
 internal static class HealthEndpointTestTemplate
 {
     /// <summary>Builds a test that boots the API in-memory via <c>WebApplicationFactory</c> and asserts <c>/api/health</c> returns 200 with a healthy status.</summary>
-    public static string Generate(string apiProject) => $$"""
+    public static string Generate(string projectName) => $$"""
         using System.Net;
         using System.Net.Http.Json;
         using Microsoft.AspNetCore.Mvc.Testing;
         using Xunit;
 
-        namespace {{apiProject}}.Tests;
+        namespace {{projectName}}.Tests;
 
         public class HealthEndpointTests : IClassFixture<WebApplicationFactory<Program>>
         {

@@ -101,7 +101,7 @@ public static class SolutionScaffolder
 
         File.WriteAllText(
             Path.Combine(testProjectDir, "HealthEndpointTests.cs"),
-            HealthEndpointTestTemplate.Generate(structure.RootDirectory));
+            HealthEndpointTestTemplate.Generate(config.ProjectName));
     }
 
     private static void CreateSolutionFile(ProjectStructure structure, ScaffoldingConfig config)
