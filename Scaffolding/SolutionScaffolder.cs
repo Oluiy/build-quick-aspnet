@@ -4,35 +4,74 @@ using create_aspnet_app.Utilities;
 namespace create_aspnet_app.Scaffolding;
 
 /// <summary>
-/// Generates a Clean Architecture ASP.NET Core solution on disk and wires the resulting
-/// projects into a new <c>.sln</c> file.
+/// Generates a Clean Architecture ASP.NET Core solution (or one solution per microservice) on
+/// disk and wires the resulting projects into <c>.sln</c> file(s).
 /// </summary>
 public static class SolutionScaffolder
 {
     /// <summary>
-    /// Generates the full solution: folders, project files, the API's Program.cs and
-    /// launchSettings.json, an optional xUnit test project, root-level artifacts, and the
-    /// solution file itself.
+    /// Generates either a single monolithic solution or one solution per configured microservice
+    /// (plus an aggregate root solution), depending on <see cref="ScaffoldingConfig.IsMicroservice"/>.
     /// </summary>
     /// <param name="config">The options controlling project naming, architecture and output.</param>
     public static void Generate(ScaffoldingConfig config)
     {
-        var structure = new ProjectStructure(config.ProjectName, config.OutputDirectory);
+        if (config.IsMicroservice)
+        {
+            GenerateMicroservices(config);
+        }
+        else
+        {
+            var structure = GenerateProjectSet(config.ProjectName, config.OutputDirectory, config, config.HttpPort, config.HttpsPort);
+            WriteRootArtifacts(structure.RootDirectory, config.ProjectName);
+            CreateSolutionFile(structure.RootDirectory, config.ProjectName, [structure], config);
+        }
+    }
+
+    private static void GenerateMicroservices(ScaffoldingConfig config)
+    {
+        var rootDirectory = Path.Combine(config.OutputDirectory, config.ProjectName);
+        var servicesDirectory = Path.Combine(rootDirectory, "services");
+        Directory.CreateDirectory(servicesDirectory);
+
+        var structures = new List<ProjectStructure>();
+
+        for (var i = 0; i < config.ServiceNames.Count; i++)
+        {
+            var serviceName = config.ServiceNames[i];
+            var httpPort = config.HttpPort + i * 10;
+            var httpsPort = config.HttpsPort + i * 10;
+
+            var structure = GenerateProjectSet(serviceName, servicesDirectory, config, httpPort, httpsPort);
+            WriteRootArtifacts(structure.RootDirectory, serviceName);
+            CreateSolutionFile(structure.RootDirectory, serviceName, [structure], config);
+
+            structures.Add(structure);
+        }
+
+        // Aggregate root solution so the whole system can be opened/built in one go.
+        WriteRootArtifacts(rootDirectory, config.ProjectName);
+        CreateSolutionFile(rootDirectory, config.ProjectName, structures, config);
+    }
+
+    /// <summary>Generates one full Clean Architecture project set (folders, csproj files, API artifacts, optional tests) for a single project or service.</summary>
+    private static ProjectStructure GenerateProjectSet(string projectName, string outputDirectory, ScaffoldingConfig config, int httpPort, int httpsPort)
+    {
+        var structure = new ProjectStructure(projectName, outputDirectory);
         var frameworkPackageVersion = DerivePackageVersion(config.TargetFramework);
 
         Directory.CreateDirectory(structure.SrcDirectory);
 
         CreateFolders(structure, config.IsFourLayer);
         WriteProjectFiles(structure, config, frameworkPackageVersion);
-        WriteApiArtifacts(structure, config);
-        WriteRootArtifacts(structure, config.ProjectName);
+        WriteApiArtifacts(structure, projectName, httpPort, httpsPort);
 
         if (config.IncludeTests)
         {
-            WriteTestProject(structure, config, frameworkPackageVersion);
+            WriteTestProject(structure, projectName, config, frameworkPackageVersion);
         }
 
-        CreateSolutionFile(structure, config);
+        return structure;
     }
 
     private static void CreateFolders(ProjectStructure structure, bool isFourLayer)
@@ -73,24 +112,24 @@ public static class SolutionScaffolder
         }
     }
 
-    private static void WriteApiArtifacts(ProjectStructure structure, ScaffoldingConfig config)
+    private static void WriteApiArtifacts(ProjectStructure structure, string projectName, int httpPort, int httpsPort)
     {
         File.WriteAllText(
             Path.Combine(structure.SrcDirectory, structure.ApiProject, "Properties", "launchSettings.json"),
-            LaunchSettingsTemplate.Generate(config.HttpPort, config.HttpsPort));
+            LaunchSettingsTemplate.Generate(httpPort, httpsPort));
 
         File.WriteAllText(
             Path.Combine(structure.SrcDirectory, structure.ApiProject, "Program.cs"),
-            ProgramTemplate.Generate(config.ProjectName));
+            ProgramTemplate.Generate(projectName));
     }
 
-    private static void WriteRootArtifacts(ProjectStructure structure, string projectName)
+    private static void WriteRootArtifacts(string rootDirectory, string name)
     {
-        File.WriteAllText(Path.Combine(structure.RootDirectory, ".gitignore"), GitignoreTemplate.Generate());
-        File.WriteAllText(Path.Combine(structure.RootDirectory, "README.md"), $"# {projectName}\n\nGenerated with `create-aspnet-app`.");
+        File.WriteAllText(Path.Combine(rootDirectory, ".gitignore"), GitignoreTemplate.Generate());
+        File.WriteAllText(Path.Combine(rootDirectory, "README.md"), $"# {name}\n\nGenerated with `create-aspnet-app`.");
     }
 
-    private static void WriteTestProject(ProjectStructure structure, ScaffoldingConfig config, string frameworkPackageVersion)
+    private static void WriteTestProject(ProjectStructure structure, string projectName, ScaffoldingConfig config, string frameworkPackageVersion)
     {
         var testProjectDir = Path.Combine(structure.TestsDirectory, structure.TestProject);
         Directory.CreateDirectory(testProjectDir);
@@ -101,31 +140,39 @@ public static class SolutionScaffolder
 
         File.WriteAllText(
             Path.Combine(testProjectDir, "HealthEndpointTests.cs"),
-            HealthEndpointTestTemplate.Generate(config.ProjectName));
+            HealthEndpointTestTemplate.Generate(projectName));
     }
 
-    private static void CreateSolutionFile(ProjectStructure structure, ScaffoldingConfig config)
+    private static void CreateSolutionFile(string slnDirectory, string slnName, IReadOnlyList<ProjectStructure> structures, ScaffoldingConfig config)
     {
-        ProcessRunner.RunDotnetCommand($"new sln -n {config.ProjectName}", structure.RootDirectory);
+        ProcessRunner.RunDotnetCommand($"new sln -n {slnName}", slnDirectory);
 
-        var projectPaths = new List<string>
+        var projectPaths = new List<string>();
+        foreach (var structure in structures)
         {
-            $"src/{structure.ApiProject}/{structure.ApiProject}.csproj",
-            $"src/{structure.ApplicationProject}/{structure.ApplicationProject}.csproj",
-            $"src/{structure.DomainProject}/{structure.DomainProject}.csproj"
-        };
+            projectPaths.Add(RelativeCsprojPath(slnDirectory, structure.SrcDirectory, structure.ApiProject));
+            projectPaths.Add(RelativeCsprojPath(slnDirectory, structure.SrcDirectory, structure.ApplicationProject));
+            projectPaths.Add(RelativeCsprojPath(slnDirectory, structure.SrcDirectory, structure.DomainProject));
 
-        if (config.IsFourLayer)
-        {
-            projectPaths.Add($"src/{structure.InfrastructureProject}/{structure.InfrastructureProject}.csproj");
+            if (config.IsFourLayer)
+            {
+                projectPaths.Add(RelativeCsprojPath(slnDirectory, structure.SrcDirectory, structure.InfrastructureProject));
+            }
+
+            if (config.IncludeTests)
+            {
+                var testCsproj = Path.Combine(structure.TestsDirectory, structure.TestProject, $"{structure.TestProject}.csproj");
+                projectPaths.Add(Path.GetRelativePath(slnDirectory, testCsproj));
+            }
         }
 
-        if (config.IncludeTests)
-        {
-            projectPaths.Add($"tests/{structure.TestProject}/{structure.TestProject}.csproj");
-        }
+        ProcessRunner.RunDotnetCommand($"sln add {string.Join(" ", projectPaths)}", slnDirectory);
+    }
 
-        ProcessRunner.RunDotnetCommand($"sln add {string.Join(" ", projectPaths)}", structure.RootDirectory);
+    private static string RelativeCsprojPath(string slnDirectory, string srcDirectory, string projectName)
+    {
+        var csprojPath = Path.Combine(srcDirectory, projectName, $"{projectName}.csproj");
+        return Path.GetRelativePath(slnDirectory, csprojPath);
     }
 
     /// <summary>Derives a floating NuGet version wildcard matching the TFM, e.g. <c>net8.0</c> -&gt; <c>8.0.*</c>.</summary>
