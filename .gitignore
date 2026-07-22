@@ -7,3 +7,5 @@ nupkg/
 *.user
 *.userosscache
 *.sln.docstates
+
+oss-template/

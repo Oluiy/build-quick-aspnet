@@ -8,12 +8,12 @@
     <Nullable>enable</Nullable>
 
   <PackAsTool>true</PackAsTool>
-  <ToolCommandName>create-aspnet-app</ToolCommandName>
+  <ToolCommandName>BuildQuickPkg</ToolCommandName>
   <PackageId>BuildQuickPkg</PackageId>
-  <Version>1.0.7</Version>
+  <Version>1.0.8</Version>
 
   <Authors>Iyanuoluwa Akinboyewa(Oluiy)</Authors>
-  <Description>Interactive CLI that scaffolds a Clean Architecture ASP.NET Core solution (API, Application, Domain, Infrastructure) in seconds.</Description>
+  <Description>Interactive CLI that scaffolds a Clean Architecture ASP.NET Core solution (API, Application, Domain, Infrastructure), monolithic or microservice, with Serilog structured logging built in.</Description>
   <PackageTags>dotnet;aspnetcore;clean-architecture;scaffolding;cli;template</PackageTags>
   <PackageProjectUrl>https://github.com/Oluiy/build-quick-aspnet</PackageProjectUrl>
   <RepositoryUrl>https://github.com/Oluiy/build-quick-aspnet</RepositoryUrl>
