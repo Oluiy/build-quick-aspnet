@@ -5,67 +5,93 @@ namespace create_aspnet_app.Templates;
 /// </summary>
 internal static class ProgramTemplate
 {
-    /// <summary>Builds Program.cs content wired up with CORS, Swagger, and a sample health-check endpoint.</summary>
+    /// <summary>Builds Program.cs content wired up with Serilog, CORS, Swagger, and a sample health-check endpoint.</summary>
     public static string Generate(string projectName) => $$"""
+    using Serilog;
+
+    namespace {{projectName}}_API;
+
     public class Program
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-    
-            // 1. Cross-Origin Resource Sharing
-            builder.Services.AddCors(options =>
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            try
             {
-                options.AddPolicy("AllowAll", policy =>
+                Log.Information("Starting {{projectName}} API");
+
+                var builder = WebApplication.CreateBuilder(args);
+                builder.Host.UseSerilog();
+
+                // 1. Cross-Origin Resource Sharing
+                builder.Services.AddCors(options =>
                 {
-                    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                    options.AddPolicy("AllowAll", policy =>
+                    {
+                        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                    });
                 });
-            });
-    
-            // 2. Add Swagger / OpenAPI services
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+
+                // 2. Add Swagger / OpenAPI services
+                builder.Services.AddEndpointsApiExplorer();
+                builder.Services.AddSwaggerGen(options =>
                 {
-                    Title = "{{projectName}} API",
-                    Version = "v1",
-                    Description = "Clean Architecture Web API scaffolding"
+                    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                    {
+                        Title = "{{projectName}} API",
+                        Version = "v1",
+                        Description = "Clean Architecture Web API scaffolding"
+                    });
                 });
-            });
-    
-            var app = builder.Build();
-    
-            // 3. Configure Middleware Pipeline
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI(c =>
+
+                var app = builder.Build();
+
+                // 3. Structured request logging
+                app.UseSerilogRequestLogging();
+
+                // 4. Configure Middleware Pipeline
+                if (app.Environment.IsDevelopment())
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "{{projectName}} API v1");
-                    // Serves Swagger UI directly at the root URL (http://localhost:<port>/)
-                    c.RoutePrefix = string.Empty;
-                });
+                    app.UseSwagger();
+                    app.UseSwaggerUI(c =>
+                    {
+                        c.SwaggerEndpoint("/swagger/v1/swagger.json", "{{projectName}} API v1");
+                        // Serves Swagger UI directly at the root URL (http://localhost:<port>/)
+                        c.RoutePrefix = string.Empty;
+                    });
+                }
+
+                if (app.Environment.IsProduction())
+                {
+                    app.UseHttpsRedirection();
+                }
+
+                app.UseCors("AllowAll");
+
+                // 5. Working Sample Endpoints
+                app.MapGet("/api/health", () => Results.Ok(new
+                {
+                    Status = "Healthy",
+                    Project = "{{projectName}} API",
+                    Timestamp = DateTime.UtcNow
+                }))
+                .WithName("HealthCheck");
+
+                app.Run();
             }
-    
-            if (app.Environment.IsProduction())
+            catch (Exception ex)
             {
-                app.UseHttpsRedirection();
+                Log.Fatal(ex, "{{projectName}} API terminated unexpectedly");
             }
-    
-            app.UseCors("AllowAll");
-    
-            // 4. Working Sample Endpoints
-            app.MapGet("/api/health", () => Results.Ok(new
+            finally
             {
-                Status = "Healthy",
-                Project = "{{projectName}} API",
-                Timestamp = DateTime.UtcNow
-            }))
-            .WithName("HealthCheck");
-    
-            app.Run();
-        } 
+                Log.CloseAndFlush();
+            }
+        }
     }
     """;
 }

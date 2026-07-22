@@ -18,6 +18,7 @@ internal static class CsprojTemplates
           <ItemGroup>
             <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="{{frameworkPackageVersion}}" />
             <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+            <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
           </ItemGroup>
 
           <ItemGroup>
@@ -39,6 +40,7 @@ internal static class CsprojTemplates
           <ItemGroup>
             <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="{{frameworkPackageVersion}}" />
             <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+            <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
           </ItemGroup>
 
           <ItemGroup>
