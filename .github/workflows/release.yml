@@ -1,0 +1,47 @@
+name: Publish Release & NuGet Package
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers versioning (e.g., v1.0.0)
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # Required to create GitHub Releases
+      id-token: write   # Required for NuGet OIDC Trusted Publishing
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Pack Global Tool
+        run: dotnet pack -c Release -o ./nupkg
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./nupkg/*.nupkg
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: NuGet Login (Trusted Publishing)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+
+      - name: Publish Package to NuGet.org
+        run: |
+          dotnet nuget push ./nupkg/*.nupkg \
+            --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate

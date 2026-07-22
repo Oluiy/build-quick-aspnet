@@ -10,7 +10,7 @@
   <PackAsTool>true</PackAsTool>
   <ToolCommandName>create-aspnet-app</ToolCommandName>
   <PackageId>BuildQuickPkg</PackageId>
-  <Version>1.0.4</Version>
+  <Version>1.0.5</Version>
 
   <Authors>Israel</Authors>
   <Description>Interactive CLI that scaffolds a Clean Architecture ASP.NET Core solution (API, Application, Domain, Infrastructure) in seconds.</Description>
