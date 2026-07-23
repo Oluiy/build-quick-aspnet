@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace create_aspnet_app.Utilities;
+namespace BuildQuickPkg.Utilities;
 
 /// <summary>
 /// Executes external command-line processes such as the .NET CLI.

@@ -1,6 +1,6 @@
-using create_aspnet_app.Scaffolding;
+using BuildQuickPkg.Scaffolding;
 
-namespace create_aspnet_app.Templates;
+namespace BuildQuickPkg.Templates;
 
 /// <summary>
 /// Produces the generated API project's <c>Program.cs</c> for the minimal hosting model.

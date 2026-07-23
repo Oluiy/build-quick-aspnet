@@ -1,6 +1,6 @@
-using create_aspnet_app.Scaffolding;
+using BuildQuickPkg.Scaffolding;
 
-namespace create_aspnet_app.Templates;
+namespace BuildQuickPkg.Templates;
 
 /// <summary>
 /// Produces the <c>.csproj</c> content for each Clean Architecture layer, wired up with the

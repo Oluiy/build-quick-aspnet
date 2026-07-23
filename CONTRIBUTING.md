@@ -1,4 +1,4 @@
-# Contributing to BuildQuickPkg (create-aspnet-app)
+# Contributing to BuildQuickPkg
 
 Thanks for considering a contribution! This project scaffolds Clean Architecture ASP.NET Core solutions, monolithic or microservice, via an interactive CLI, and keeping the generator itself simple and well-organized is part of the point.
 

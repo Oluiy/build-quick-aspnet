@@ -1,4 +1,5 @@
-namespace create_aspnet_app.Scaffolding;
+namespace BuildQuickPkg.Scaffolding;
+using System.Collections.Generic;
 
 /// <summary>
 /// User-supplied options that control how a solution is scaffolded.

@@ -6,7 +6,7 @@ If you just want to get a project running, start with **Getting Started**. Every
 
 | Guide | What's in it |
 | --- | --- |
-| [Getting Started](getting-started.md) | Install the tool, generate your first project, run it |
+| [Getting Started](getting-started.md) | Install, upgrade, downgrade, or uninstall the tool; generate your first project, run it |
 | [CLI Reference](cli-reference.md) | Every prompt, its options, and its default |
 | [Architecture Guide](architecture-guide.md) | 4-layer vs. 3-layer, the dependency rule, where things live |
 | [Entity Framework Core](entity-framework-core.md) | PostgreSQL / SQL Server setup, migrations, connection strings |

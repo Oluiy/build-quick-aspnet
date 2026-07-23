@@ -107,6 +107,8 @@ Every generated API ships with [Serilog](https://serilog.net/) wired up via `Ser
 dotnet tool install --global BuildQuickPkg
 ```
 
+Upgrading, downgrading to a specific version, and uninstalling are covered in [Managing your install](docs/getting-started.md#managing-your-install).
+
 ## Usage
 
 ```bash
@@ -147,7 +149,7 @@ dotnet run
 The tool itself follows the same separation-of-concerns principle it generates for you:
 
 ```
-create-aspnet-app/
+BuildQuickPkg/
 ├── Program.cs                       # CLI entry point collects prompts, invokes the scaffolder
 ├── Scaffolding/
 │   ├── ScaffoldingConfig.cs         # Options record: naming, architecture, ports, tests, EF/Docker/JWT

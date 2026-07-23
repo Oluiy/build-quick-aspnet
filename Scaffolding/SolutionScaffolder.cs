@@ -1,7 +1,7 @@
-using create_aspnet_app.Templates;
-using create_aspnet_app.Utilities;
+using BuildQuickPkg.Templates;
+using BuildQuickPkg.Utilities;
 
-namespace create_aspnet_app.Scaffolding;
+namespace BuildQuickPkg.Scaffolding;
 
 /// <summary>
 /// Generates a Clean Architecture ASP.NET Core solution (or one solution per microservice) on
@@ -186,7 +186,7 @@ public static class SolutionScaffolder
     private static void WriteRootArtifacts(string rootDirectory, string name)
     {
         File.WriteAllText(Path.Combine(rootDirectory, ".gitignore"), GitignoreTemplate.Generate());
-        File.WriteAllText(Path.Combine(rootDirectory, "README.md"), $"# {name}\n\nGenerated with `create-aspnet-app`.");
+        File.WriteAllText(Path.Combine(rootDirectory, "README.md"), $"# {name}\n\nGenerated with `BuildQuickPkg`.");
     }
 
     private static void WriteTestProject(ProjectStructure structure, string projectName, ScaffoldingConfig config, string frameworkPackageVersion)

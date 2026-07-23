@@ -1,4 +1,4 @@
-﻿using create_aspnet_app.Scaffolding;
+﻿using BuildQuickPkg.Scaffolding;
 using Spectre.Console;
 using System.Diagnostics;
 

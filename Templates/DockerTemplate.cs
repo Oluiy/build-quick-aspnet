@@ -1,6 +1,6 @@
-using create_aspnet_app.Scaffolding;
+using BuildQuickPkg.Scaffolding;
 
-namespace create_aspnet_app.Templates;
+namespace BuildQuickPkg.Templates;
 
 /// <summary>
 /// Produces the <c>Dockerfile</c> and <c>docker-compose.yml</c> written to the root of each

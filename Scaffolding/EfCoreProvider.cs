@@ -1,4 +1,4 @@
-namespace create_aspnet_app.Scaffolding;
+namespace BuildQuickPkg.Scaffolding;
 
 /// <summary>
 /// The Entity Framework Core database provider to scaffold, if any.

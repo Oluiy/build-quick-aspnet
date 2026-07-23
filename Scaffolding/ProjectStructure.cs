@@ -1,4 +1,4 @@
-namespace create_aspnet_app.Scaffolding;
+namespace BuildQuickPkg.Scaffolding;
 
 /// <summary>
 /// Resolves the Clean Architecture project names and folder layout for a generated solution.

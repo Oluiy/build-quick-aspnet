@@ -1,5 +1,5 @@
-`# Regenerate demo.gif:
-#   1. dotnet build (from the repo root, so bin/Debug/net8.0/create-aspnet-app.dll exists)
+# Regenerate demo.gif:
+#   1. dotnet build (from the repo root, so bin/Debug/net8.0/BuildQuickPkg.dll exists)
 #   2. brew install vhs   (https://github.com/charmbracelet/vhs)
 #   3. vhs docs/assets/demo.tape   (run from the repo root)
 
@@ -14,7 +14,7 @@ Set TypingSpeed 55ms
 Set Padding 15
 
 Hide
-Type "rm -rf /tmp/bqp-demo && mkdir -p /tmp/bqp-demo && BQP_DLL=$PWD/bin/Debug/net8.0/create-aspnet-app.dll && BuildQuickPkg() { dotnet $BQP_DLL } && cd /tmp/bqp-demo && clear"
+Type "rm -rf /tmp/bqp-demo && mkdir -p /tmp/bqp-demo && BQP_DLL=$PWD/bin/Debug/net8.0/BuildQuickPkg.dll && BuildQuickPkg() { dotnet $BQP_DLL } && cd /tmp/bqp-demo && clear"
 Enter
 Show
 

@@ -1,4 +1,4 @@
-namespace create_aspnet_app.Templates;
+namespace BuildQuickPkg.Templates;
 
 /// <summary>
 /// Produces the <c>.gitignore</c> written to the root of every generated solution.

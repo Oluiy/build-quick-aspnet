@@ -1,4 +1,4 @@
-namespace create_aspnet_app.Templates;
+namespace BuildQuickPkg.Templates;
 
 /// <summary>
 /// Produces an xUnit integration test exercising the generated API's health-check endpoint.

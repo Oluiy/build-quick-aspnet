@@ -62,3 +62,37 @@ If you also said yes to Entity Framework Core, Docker, or JWT, see their dedicat
 ## 6. Next run
 
 BuildQuickPkg doesn't remember your previous answers between runs; each invocation is a fresh set of prompts, so you can generate very different projects back to back (a monolith, then a 3-service microservice split, then a Docker+Postgres+JWT API) without reconfiguring anything.
+
+## Managing your install
+
+BuildQuickPkg is installed as a [.NET global tool](https://learn.microsoft.com/dotnet/core/tools/global-tools), so all of this is standard `dotnet tool` plumbing, nothing BuildQuickPkg-specific.
+
+**Check what you have installed:**
+
+```bash
+dotnet tool list --global
+```
+
+Look for the `BuildQuickPkg` row; the second column is your currently installed version.
+
+**Upgrade to the latest version:**
+
+```bash
+dotnet tool update --global BuildQuickPkg
+```
+
+**Upgrade or downgrade to a specific version**: `dotnet tool update` takes a `--version`, and it works in both directions (it doesn't have to be newer than what you have):
+
+```bash
+dotnet tool update --global BuildQuickPkg --version 1.0.6
+```
+
+See every published version on the [NuGet package page](https://www.nuget.org/packages/BuildQuickPkg) or the [GitHub Releases page](https://github.com/Oluiy/build-quick-aspnet/releases); release notes are generated automatically for each tagged version, so that's the fastest way to see what changed before deciding whether to move.
+
+**Uninstall:**
+
+```bash
+dotnet tool uninstall --global BuildQuickPkg
+```
+
+This only removes the CLI itself; any project you've already generated with it is a normal, independent ASP.NET Core solution and keeps working exactly as before. Uninstalling BuildQuickPkg doesn't touch anything it previously generated.

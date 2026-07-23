@@ -1,6 +1,6 @@
-using create_aspnet_app.Scaffolding;
+using BuildQuickPkg.Scaffolding;
 
-namespace create_aspnet_app.Templates;
+namespace BuildQuickPkg.Templates;
 
 /// <summary>
 /// Produces the generated Entity Framework Core <c>DbContext</c> and the provider-specific
