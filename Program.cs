@@ -37,7 +37,12 @@ var isMicroservice = deploymentStyle.StartsWith("Microservice");
 var serviceNames = new List<string>();
 if (isMicroservice)
 {
-    var serviceCount = AnsiConsole.Ask<int>("How many [bold green]services[/] would you like to create?", 2);
+    var serviceCount = AnsiConsole.Prompt(
+        new TextPrompt<int>("How many [bold green]services[/] would you like to create?")
+            .DefaultValue(2)
+            .Validate(count => count > 0
+                ? ValidationResult.Success()
+                : ValidationResult.Error("[red]Enter at least 1 service.[/]")));
     for (var i = 1; i <= serviceCount; i++)
     {
         serviceNames.Add(AnsiConsole.Ask<string>($"What is the name of [bold green]service {i}[/]?", $"Service{i}"));

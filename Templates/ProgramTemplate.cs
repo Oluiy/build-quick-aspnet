@@ -84,14 +84,16 @@ internal static class ProgramTemplate
                             // Serves Swagger UI directly at the root URL (http://localhost:<port>/)
                             c.RoutePrefix = string.Empty;
                         });
+
+                        // "AllowAll" is convenient for local development only. Before deploying,
+                        // replace it with a named policy that allowlists your actual client origin(s).
+                        app.UseCors("AllowAll");
                     }
 
                     if (app.Environment.IsProduction())
                     {
                         app.UseHttpsRedirection();
                     }
-
-                    app.UseCors("AllowAll");
         {{authMiddleware}}
                     // 5. Working Sample Endpoints
                     app.MapGet("/api/health", () => Results.Ok(new
