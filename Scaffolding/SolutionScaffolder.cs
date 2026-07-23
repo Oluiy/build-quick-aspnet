@@ -14,8 +14,15 @@ public static class SolutionScaffolder
     /// (plus an aggregate root solution), depending on <see cref="ScaffoldingConfig.IsMicroservice"/>.
     /// </summary>
     /// <param name="config">The options controlling project naming, architecture and output.</param>
+    /// <exception cref="ArgumentException"><see cref="ScaffoldingConfig.ProjectName"/> or one of <see cref="ScaffoldingConfig.ServiceNames"/> isn't safe to use as a C# namespace segment and folder name (e.g. contains a space).</exception>
     public static void Generate(ScaffoldingConfig config)
     {
+        ValidateName(config.ProjectName, nameof(config.ProjectName));
+        foreach (var serviceName in config.ServiceNames)
+        {
+            ValidateName(serviceName, nameof(config.ServiceNames));
+        }
+
         if (config.IsMicroservice)
         {
             GenerateMicroservices(config);
@@ -205,7 +212,7 @@ public static class SolutionScaffolder
 
     private static void CreateSolutionFile(string slnDirectory, string slnName, IReadOnlyList<ProjectStructure> structures, ScaffoldingConfig config)
     {
-        ProcessRunner.RunDotnetCommand($"new sln -n {slnName}", slnDirectory);
+        ProcessRunner.RunDotnetCommand(["new", "sln", "-n", slnName], slnDirectory);
 
         var projectPaths = new List<string>();
         foreach (var structure in structures)
@@ -226,7 +233,7 @@ public static class SolutionScaffolder
             }
         }
 
-        ProcessRunner.RunDotnetCommand($"sln add {string.Join(" ", projectPaths)}", slnDirectory);
+        ProcessRunner.RunDotnetCommand(["sln", "add", .. projectPaths], slnDirectory);
     }
 
     private static string RelativeCsprojPath(string slnDirectory, string srcDirectory, string projectName)
@@ -237,4 +244,13 @@ public static class SolutionScaffolder
 
     /// <summary>Derives a floating NuGet version wildcard matching the TFM, e.g. <c>net8.0</c> -&gt; <c>8.0.*</c>.</summary>
     private static string DerivePackageVersion(string targetFramework) => $"{targetFramework.Replace("net", "")}.*";
+    
+    private static void ValidateName(string name, string paramName)
+    {
+        if (!NameValidation.IsValidIdentifierName(name))
+        {
+            throw new ArgumentException(
+                $"'{name}' isn't a valid name: use only letters, digits, and underscores, starting with a letter.", paramName);
+        }
+    }
 }

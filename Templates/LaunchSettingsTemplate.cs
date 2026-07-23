@@ -14,7 +14,6 @@ internal static class LaunchSettingsTemplate
             "commandName": "Project",
             "dotnetRunMessages": true,
             "launchBrowser": true,
-            "launchUrl": "swagger",
             "applicationUrl": "https://localhost:{{httpsPort}};http://localhost:{{httpPort}}",
             "environmentVariables": {
             "ASPNETCORE_ENVIRONMENT": "Development"
@@ -24,7 +23,6 @@ internal static class LaunchSettingsTemplate
             "commandName": "Project",
             "dotnetRunMessages": true,
             "launchBrowser": true,
-            "launchUrl": "swagger",
             "applicationUrl": "http://localhost:{{httpPort}}",
             "environmentVariables": {
             "ASPNETCORE_ENVIRONMENT": "Development"

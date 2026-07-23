@@ -18,7 +18,7 @@ internal static class CsprojTemplates
           </PropertyGroup>
 
           <ItemGroup>
-            <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+            <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
             <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
         {{JwtPackageReference(includeJwt, frameworkPackageVersion)}}
           </ItemGroup>
@@ -40,7 +40,7 @@ internal static class CsprojTemplates
           </PropertyGroup>
 
           <ItemGroup>
-            <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+            <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
             <PackageReference Include="Serilog.AspNetCore" Version="8.0.3" />
         {{JwtPackageReference(includeJwt, frameworkPackageVersion)}}
           </ItemGroup>

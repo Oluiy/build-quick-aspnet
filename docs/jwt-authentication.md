@@ -7,6 +7,7 @@ Answering yes to "Add JWT Authentication boilerplate?" wires up bearer-token aut
 - The `Microsoft.AspNetCore.Authentication.JwtBearer` package, added to the API project.
 - `builder.Services.AddAuthentication(...).AddJwtBearer(...)` in `Program.cs`, configured to validate issuer, audience, lifetime, and signing key against your `Jwt:*` configuration.
 - `app.UseAuthentication()` / `app.UseAuthorization()` in the middleware pipeline, in the correct order (after CORS, before endpoint mapping).
+- A JWT bearer security scheme registered with Swashbuckle (`AddSecurityDefinition`/`AddSecurityRequirement`), so Swagger UI actually shows an **Authorize** button and lock icons instead of silently ignoring auth entirely. Without this, JWT still works against the API directly; Swagger UI just has no way to know about it or let you attach a token.
 - A `Jwt` section in `appsettings.json` (`Issuer`, `Audience`, `ExpiryMinutes`) and a signing key in `appsettings.Development.json`; see [Getting Started](getting-started.md) for how the three `appsettings.*` files layer.
 - Two sample endpoints in `Program.cs`:
   - `POST /api/auth/token?username=someone`: issues a signed JWT for the given username. This is a **demo token issuer**, not a real login flow (no password check, no user store); see below.
@@ -32,7 +33,9 @@ curl http://localhost:5200/api/secure -H "Authorization: Bearer eyJhbGciOi..."
 # → { "message": "You are authenticated!" }
 ```
 
-Or use Swagger UI (`http://localhost:5200/`); click **Authorize**, paste the token, and the padlocked endpoints will include it automatically.
+Or use Swagger UI (`http://localhost:5200/`): click **Authorize** in the top right, paste just the token (no `Bearer ` prefix), and it's attached to every request you make from the UI afterward.
+
+Note the lock icon shows on every endpoint, including `/api/health`, which doesn't actually require a token; the security requirement is registered at the document level rather than per-endpoint, which is simpler and is what most JWT+Swagger setups do, at the cost of that one cosmetic overstatement. The API itself is unaffected: only endpoints with `.RequireAuthorization()` (like `/api/secure`) actually reject unauthenticated requests.
 
 ## Replacing the demo token endpoint
 

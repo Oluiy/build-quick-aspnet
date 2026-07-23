@@ -1,5 +1,6 @@
 ﻿using BuildQuickPkg.Commands;
 using BuildQuickPkg.Scaffolding;
+using BuildQuickPkg.Utilities;
 using Spectre.Console;
 using System.Diagnostics;
 using System.Reflection;
@@ -40,9 +41,20 @@ if (args.Length > 0 && string.Equals(args[0], "add", StringComparison.OrdinalIgn
 
 AnsiConsole.Write(new FigletText("ASP.NET Core").Color(Color.Cyan1));
 
-var projectName = args.Length > 0
-    ? args[0]
-    : AnsiConsole.Ask<string>("What is your [bold green]Project Name[/]?", "MyAwesomeApi");
+string projectName;
+if (args.Length > 0)
+{
+    projectName = args[0].Trim();
+    if (!NameValidation.IsValidIdentifierName(projectName))
+    {
+        AnsiConsole.MarkupLine($"[red]'{args[0]}' isn't a valid project name.[/] Use only letters, digits, and underscores, starting with a letter.");
+        return;
+    }
+}
+else
+{
+    projectName = AskName("What is your [bold green]Project Name[/]?", "MyAwesomeApi");
+}
 
 var targetFramework = AnsiConsole.Prompt(
     new SelectionPrompt<string>()
@@ -78,7 +90,7 @@ if (isMicroservice)
                 : ValidationResult.Error("[red]Enter at least 1 service.[/]")));
     for (var i = 1; i <= serviceCount; i++)
     {
-        serviceNames.Add(AnsiConsole.Ask<string>($"What is the name of [bold green]service {i}[/]?", $"Service{i}"));
+        serviceNames.Add(AskName($"What is the name of [bold green]service {i}[/]?", $"Service{i}"));
     }
 }
 
@@ -143,3 +155,19 @@ else
 
 TimeSpan elapsed = Stopwatch.GetElapsedTime(startTime);
 AnsiConsole.MarkupLine($"[bold cyan]Total time: {elapsed.TotalSeconds} seconds[/]");
+
+// Prompts for a project/service name, trimming stray leading/trailing whitespace and rejecting
+// anything that wouldn't be safe as a C# namespace segment or folder name (e.g. embedded spaces),
+// which would otherwise surface much later as a broken `dotnet sln add` call or invalid generated
+// namespace instead of a clear message here.
+static string AskName(string prompt, string defaultValue)
+{
+    var value = AnsiConsole.Prompt(
+        new TextPrompt<string>(prompt)
+            .DefaultValue(defaultValue)
+            .Validate(input => NameValidation.IsValidIdentifierName(input.Trim())
+                ? ValidationResult.Success()
+                : ValidationResult.Error("[red]Use only letters, digits, and underscores, starting with a letter.[/]")));
+
+    return value.Trim();
+}

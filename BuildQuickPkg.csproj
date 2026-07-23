@@ -11,10 +11,10 @@
   <PackAsTool>true</PackAsTool>
   <ToolCommandName>BuildQuickPkg</ToolCommandName>
   <PackageId>BuildQuickPkg</PackageId>
-  <Version>1.1.0</Version>
+  <Version>1.0.9</Version>
 
   <PackageReleaseNotes><![CDATA[
-1.1.0
+1.0.9
 
 New:
 - Entity Framework Core support (PostgreSQL or SQL Server) at generation time: provider package, a starter DbContext wired into Program.cs, and connection strings in appsettings.
@@ -31,10 +31,13 @@ New:
 
 Fixed:
 - Projects targeting net9.0/net10.0 failed to build with CS0234/CS7069 (a version conflict between Microsoft.AspNetCore.OpenApi and Swashbuckle.AspNetCore) plus a high-severity NU1903 vulnerability warning. The unused, conflicting package reference has been removed.
+- Swashbuckle.AspNetCore upgraded from 6.6.2 to 10.2.3, the current stable line supporting net8.0/net9.0/net10.0 and OpenAPI 3.1. Generated Program.cs updated for the underlying Microsoft.OpenApi 2.x rewrite this version depends on (OpenApiInfo moved from the Microsoft.OpenApi.Models namespace to Microsoft.OpenApi). Verified with a clean build on all three target frameworks.
 - The generated xUnit test project failed to compile in every generated solution due to a missing using directive.
 - The generated API's CORS policy is now scoped to Development only, instead of also applying in Production.
 - Failures in the underlying dotnet CLI calls (new sln, sln add) are no longer swallowed silently; they now surface a clear error instead of a false "Success" message.
 - Input validation added for microservice generation to prevent an unrecoverable zero-service solution.
+- A project or service name with a stray space (e.g. a trailing space typed by mistake) previously crashed generation with an unhandled exception from "dotnet sln add", or silently produced a broken, uncompilable project. Names are now trimmed and validated up front, with a clear message if one isn't safe to use as a C# namespace and folder name.
+- When JWT is enabled, Swagger UI now actually shows an Authorize button and lock icons (via a Bearer security scheme registered with Swashbuckle) instead of silently ignoring authentication entirely. Also fixed in the "add jwt" retrofit command.
 ]]></PackageReleaseNotes>
 
   <Authors>Iyanuoluwa Akinboyewa(Oluiy)</Authors>

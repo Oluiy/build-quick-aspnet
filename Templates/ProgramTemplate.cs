@@ -20,6 +20,7 @@ internal static class ProgramTemplate
     {
         var dbContextName = $"{projectName}DbContext";
         var extraUsings = BuildExtraUsings(efProvider, dbContextNamespace, includeJwt);
+        var swaggerJwtSecurity = BuildSwaggerJwtSecurity(includeJwt);
         var dbContextRegistration = BuildDbContextRegistration(efProvider, dbContextName);
         var authRegistration = BuildAuthRegistration(includeJwt);
         var authMiddleware = BuildAuthMiddleware(includeJwt);
@@ -61,12 +62,14 @@ internal static class ProgramTemplate
                     builder.Services.AddEndpointsApiExplorer();
                     builder.Services.AddSwaggerGen(options =>
                     {
-                        options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                        options.SwaggerDoc("v1", new Microsoft.OpenApi.OpenApiInfo
                         {
                             Title = "{{projectName}} API",
                             Version = "v1",
                             Description = "Clean Architecture Web API scaffolding"
                         });
+                        // BuildQuickPkg:swagger
+        {{swaggerJwtSecurity}}
                     });
         {{dbContextRegistration}}
         {{authRegistration}}
@@ -144,6 +147,39 @@ internal static class ProgramTemplate
         }
 
         return usings.Count == 0 ? "" : string.Join("\n", usings);
+    }
+
+    /// <summary>
+    /// Builds the Swagger UI JWT bearer security scheme: this is what makes the "Authorize" button
+    /// and the per-endpoint lock icons actually appear, and lets you paste a token into Swagger UI
+    /// and have it sent on every request. Without this, JWT bearer auth still works against the API
+    /// directly, but Swagger UI has no way to know about it or to let you supply a token.
+    /// Reused by <c>BuildQuickPkg add jwt</c> to patch an existing Program.cs.
+    /// </summary>
+    internal static string BuildSwaggerJwtSecurity(bool includeJwt)
+    {
+        if (!includeJwt)
+        {
+            return "";
+        }
+
+        return """
+
+                    const string securityScheme = "Bearer";
+                    options.AddSecurityDefinition(securityScheme, new Microsoft.OpenApi.OpenApiSecurityScheme
+                    {
+                        Name = "Authorization",
+                        Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+                        Scheme = "Bearer",
+                        BearerFormat = "JWT",
+                        In = Microsoft.OpenApi.ParameterLocation.Header,
+                        Description = "Paste the token from POST /api/auth/token here (no \"Bearer \" prefix needed)."
+                    });
+                    options.AddSecurityRequirement(document => new Microsoft.OpenApi.OpenApiSecurityRequirement
+                    {
+                        [new Microsoft.OpenApi.OpenApiSecuritySchemeReference(securityScheme, document)] = new List<string>()
+                    });
+        """;
     }
 
     /// <summary>Builds the <c>AddDbContext</c> registration block, reused by <c>BuildQuickPkg add efcore</c> to patch an existing Program.cs.</summary>

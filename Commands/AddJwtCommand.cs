@@ -23,12 +23,14 @@ internal static class AddJwtCommand
         // Patch Program.cs first: it's the one step that can fail (missing markers), and it
         // writes atomically, so if it throws, nothing below has touched disk yet.
         var usings = ProgramTemplate.BuildExtraUsings(EfCoreProvider.None, dbContextNamespace: null, includeJwt: true);
+        var swaggerSecurity = ProgramTemplate.BuildSwaggerJwtSecurity(includeJwt: true);
         var registration = ProgramTemplate.BuildAuthRegistration(includeJwt: true);
         var middleware = ProgramTemplate.BuildAuthMiddleware(includeJwt: true);
         var endpoints = ProgramTemplate.BuildAuthSampleEndpoints(includeJwt: true);
         ProgramCsEditor.ApplyInsertions(programCsPath,
         [
             (ProgramCsEditor.UsingsMarker, usings + "\n"),
+            (ProgramCsEditor.SwaggerMarker, swaggerSecurity + "\n"),
             (ProgramCsEditor.ServicesMarker, registration + "\n"),
             (ProgramCsEditor.MiddlewareMarker, middleware),
             (ProgramCsEditor.EndpointsMarker, endpoints + "\n"),
@@ -53,5 +55,6 @@ internal static class AddJwtCommand
 
         AnsiConsole.MarkupLine($"\n[bold green]✨ Done![/] JWT authentication added to [bold yellow]{project.ProjectName}[/].");
         AnsiConsole.MarkupLine("Try it: [bold cyan]POST /api/auth/token?username=alice[/] then call [bold cyan]GET /api/secure[/] with the returned token.");
+        AnsiConsole.MarkupLine("Swagger UI now shows an [bold cyan]Authorize[/] button and lock icons; paste the token there to call protected endpoints from the browser.");
     }
 }

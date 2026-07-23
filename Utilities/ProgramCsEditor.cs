@@ -8,6 +8,7 @@ namespace BuildQuickPkg.Utilities;
 internal static class ProgramCsEditor
 {
     public const string UsingsMarker = "// BuildQuickPkg:usings";
+    public const string SwaggerMarker = "// BuildQuickPkg:swagger";
     public const string ServicesMarker = "// BuildQuickPkg:services";
     public const string MiddlewareMarker = "// BuildQuickPkg:middleware";
     public const string EndpointsMarker = "// BuildQuickPkg:endpoints";
