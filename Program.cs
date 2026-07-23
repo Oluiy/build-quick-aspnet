@@ -166,7 +166,7 @@ else
 }
 
 TimeSpan elapsed = Stopwatch.GetElapsedTime(startTime);
-AnsiConsole.MarkupLine($"[bold cyan]Total time: {elapsed.TotalSeconds} seconds[/]");
+AnsiConsole.MarkupLine($"[bold cyan]Total time: {elapsed.TotalSeconds:F2} seconds[/]");
 
 return 0;
 
