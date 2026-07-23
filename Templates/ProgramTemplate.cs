@@ -27,6 +27,7 @@ internal static class ProgramTemplate
 
         return $$"""
         using Serilog;
+        // BuildQuickPkg:usings
         {{extraUsings}}
 
         namespace {{projectName}}_API;
@@ -69,6 +70,7 @@ internal static class ProgramTemplate
                     });
         {{dbContextRegistration}}
         {{authRegistration}}
+                    // BuildQuickPkg:services
                     var app = builder.Build();
 
                     // 3. Structured request logging
@@ -95,6 +97,7 @@ internal static class ProgramTemplate
                         app.UseHttpsRedirection();
                     }
         {{authMiddleware}}
+                    // BuildQuickPkg:middleware
                     // 5. Working Sample Endpoints
                     app.MapGet("/api/health", () => Results.Ok(new
                     {
@@ -104,6 +107,7 @@ internal static class ProgramTemplate
                     }))
                     .WithName("HealthCheck");
         {{authSampleEndpoints}}
+                    // BuildQuickPkg:endpoints
                     app.Run();
                 }
                 catch (Exception ex)
@@ -119,7 +123,8 @@ internal static class ProgramTemplate
         """;
     }
 
-    private static string BuildExtraUsings(EfCoreProvider efProvider, string? dbContextNamespace, bool includeJwt)
+    /// <summary>Builds the extra <c>using</c> directives needed for <paramref name="efProvider"/> and/or JWT, reused by <c>BuildQuickPkg add</c> to patch an existing Program.cs.</summary>
+    internal static string BuildExtraUsings(EfCoreProvider efProvider, string? dbContextNamespace, bool includeJwt)
     {
         var usings = new List<string>();
 
@@ -141,7 +146,8 @@ internal static class ProgramTemplate
         return usings.Count == 0 ? "" : string.Join("\n", usings);
     }
 
-    private static string BuildDbContextRegistration(EfCoreProvider efProvider, string dbContextName)
+    /// <summary>Builds the <c>AddDbContext</c> registration block, reused by <c>BuildQuickPkg add efcore</c> to patch an existing Program.cs.</summary>
+    internal static string BuildDbContextRegistration(EfCoreProvider efProvider, string dbContextName)
     {
         if (efProvider == EfCoreProvider.None)
         {
@@ -157,7 +163,8 @@ internal static class ProgramTemplate
         """;
     }
 
-    private static string BuildAuthRegistration(bool includeJwt)
+    /// <summary>Builds the JWT bearer authentication service registration, reused by <c>BuildQuickPkg add jwt</c> to patch an existing Program.cs.</summary>
+    internal static string BuildAuthRegistration(bool includeJwt)
     {
         if (!includeJwt)
         {
@@ -185,11 +192,13 @@ internal static class ProgramTemplate
         """;
     }
 
-    private static string BuildAuthMiddleware(bool includeJwt) => includeJwt
+    /// <summary>Builds the <c>UseAuthentication</c>/<c>UseAuthorization</c> middleware lines, reused by <c>BuildQuickPkg add jwt</c> to patch an existing Program.cs.</summary>
+    internal static string BuildAuthMiddleware(bool includeJwt) => includeJwt
         ? "\n                    app.UseAuthentication();\n                    app.UseAuthorization();\n"
         : "";
 
-    private static string BuildAuthSampleEndpoints(bool includeJwt)
+    /// <summary>Builds the sample token-issuing and protected endpoints, reused by <c>BuildQuickPkg add jwt</c> to patch an existing Program.cs.</summary>
+    internal static string BuildAuthSampleEndpoints(bool includeJwt)
     {
         if (!includeJwt)
         {

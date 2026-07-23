@@ -1,9 +1,42 @@
-﻿using BuildQuickPkg.Scaffolding;
+﻿using BuildQuickPkg.Commands;
+using BuildQuickPkg.Scaffolding;
 using Spectre.Console;
 using System.Diagnostics;
+using System.Reflection;
 
 // Interactive CLI entry point: prompts for solution settings.
 long startTime = Stopwatch.GetTimestamp();
+
+var wantsHelp = args.Any(a => a is "--help" or "-h" or "-?")
+    || (args.Length > 0 && string.Equals(args[0], "help", StringComparison.OrdinalIgnoreCase));
+if (wantsHelp)
+{
+    if (args.Any(a => string.Equals(a, "add", StringComparison.OrdinalIgnoreCase)))
+    {
+        HelpText.PrintAdd();
+    }
+    else
+    {
+        HelpText.PrintRoot();
+    }
+
+    return;
+}
+
+if (args.Length > 0 && (args[0] == "--version" || args[0] == "-v"))
+{
+    var version = Assembly.GetExecutingAssembly()
+        .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+        ?? "unknown";
+    AnsiConsole.MarkupLine($"BuildQuickPkg {version}");
+    return;
+}
+
+if (args.Length > 0 && string.Equals(args[0], "add", StringComparison.OrdinalIgnoreCase))
+{
+    AddFeatureCommand.Run(args[1..]);
+    return;
+}
 
 AnsiConsole.Write(new FigletText("ASP.NET Core").Color(Color.Cyan1));
 

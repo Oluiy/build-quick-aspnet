@@ -7,6 +7,8 @@ Answering `PostgreSQL` or `SQL Server` to the "Add Entity Framework Core?" promp
 - `builder.Services.AddDbContext<{ProjectName}DbContext>(...)` wired into `Program.cs`, reading the connection string from configuration.
 - A working local connection string in `appsettings.Development.json`, and a blank one in `appsettings.Production.json` (see below).
 
+Already generated a project without it? Run `BuildQuickPkg add efcore postgres` (or `sqlserver`) from the project root; see [Adding a Feature Later](adding-features-later.md).
+
 ## 1. Add your entities
 
 Nothing is scaffolded here on purpose; this is the part that's actually your application. Add entity classes under `Domain/Entity/`, then register them as `DbSet<T>` properties on the generated context:

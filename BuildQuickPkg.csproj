@@ -6,11 +6,36 @@
     <RootNamespace>BuildQuickPkg</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 
   <PackAsTool>true</PackAsTool>
   <ToolCommandName>BuildQuickPkg</ToolCommandName>
   <PackageId>BuildQuickPkg</PackageId>
-  <Version>1.0.9</Version>
+  <Version>1.1.0</Version>
+
+  <PackageReleaseNotes><![CDATA[
+1.1.0
+
+New:
+- Entity Framework Core support (PostgreSQL or SQL Server) at generation time: provider package, a starter DbContext wired into Program.cs, and connection strings in appsettings.
+- Docker support: a multi-stage Dockerfile and docker-compose.yml, with a database service included automatically when EF Core is selected.
+- JWT Authentication boilerplate: bearer auth wired end to end, plus working sample endpoints (issue a token, call a protected route) so it's provably working out of the box, not just middleware.
+- Every generated project now ships appsettings.json, appsettings.Development.json, and appsettings.Production.json, layered per ASP.NET Core convention.
+- New "BuildQuickPkg add" command: retrofit EF Core, JWT, or Docker onto a project you already generated, no regeneration needed.
+    BuildQuickPkg add efcore postgres
+    BuildQuickPkg add jwt
+    BuildQuickPkg add docker
+  Safe by design: inserts at stable markers in Program.cs and aborts cleanly (writing nothing) if it can't find them, rather than guessing and risking your own code.
+- --help / -h and --version / -v flags.
+- Full documentation site under /docs, including a getting-started guide, architecture guide, and a guide for each optional feature.
+
+Fixed:
+- Projects targeting net9.0/net10.0 failed to build with CS0234/CS7069 (a version conflict between Microsoft.AspNetCore.OpenApi and Swashbuckle.AspNetCore) plus a high-severity NU1903 vulnerability warning. The unused, conflicting package reference has been removed.
+- The generated xUnit test project failed to compile in every generated solution due to a missing using directive.
+- The generated API's CORS policy is now scoped to Development only, instead of also applying in Production.
+- Failures in the underlying dotnet CLI calls (new sln, sln add) are no longer swallowed silently; they now surface a clear error instead of a false "Success" message.
+- Input validation added for microservice generation to prevent an unrecoverable zero-service solution.
+]]></PackageReleaseNotes>
 
   <Authors>Iyanuoluwa Akinboyewa(Oluiy)</Authors>
   <Description>Interactive CLI that scaffolds a Clean Architecture ASP.NET Core solution (API, Application, Domain, Infrastructure), monolithic or microservice, with Serilog structured logging built in.</Description>

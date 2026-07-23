@@ -2,6 +2,8 @@
 
 Answering yes to "Add Dockerfile & docker-compose.yml?" writes both files to the root of the generated project (or, in microservice mode, to the root of *each* service; see [Microservices](microservices.md)).
 
+Already generated a project without it? Run `BuildQuickPkg add docker` from the project root; see [Adding a Feature Later](adding-features-later.md).
+
 ## What's generated
 
 **`Dockerfile`**: a multi-stage build:

@@ -67,6 +67,8 @@ Three more prompts let you opt into common boilerplate at generation time:
 
 In microservice mode, each service gets its own `appsettings.*`, `DbContext`, `Dockerfile`, and `docker-compose.yml`.
 
+Said no to one of these and want it later? `BuildQuickPkg add efcore|jwt|docker` retrofits it onto a project you already generated, no regeneration needed. See [Adding a Feature Later](docs/adding-features-later.md).
+
 Project references are pre-wired according to Clean Architecture's dependency rule: `API → Application, Infrastructure`, `Infrastructure → Application, Domain`, `Application → Domain`, and `Domain` depends on nothing. The generated API project includes Swagger/OpenAPI, CORS, and Serilog structured logging out of the box, plus a sample `/api/health` endpoint, so the solution is immediately runnable and testable.
 
 **Two architecture options** are offered at generation time:
@@ -150,12 +152,19 @@ The tool itself follows the same separation-of-concerns principle it generates f
 
 ```
 BuildQuickPkg/
-├── Program.cs                       # CLI entry point collects prompts, invokes the scaffolder
+├── Program.cs                       # CLI entry point: routes to `add`, or runs the generation prompts
+├── Commands/                        # `BuildQuickPkg add <feature>` — retrofits a feature onto an existing project
+│   ├── AddFeatureCommand.cs         # Parses "efcore/jwt/docker" and dispatches to the commands below
+│   ├── AddEfCoreCommand.cs
+│   ├── AddJwtCommand.cs
+│   └── AddDockerCommand.cs
 ├── Scaffolding/
 │   ├── ScaffoldingConfig.cs         # Options record: naming, architecture, ports, tests, EF/Docker/JWT
 │   ├── EfCoreProvider.cs            # None / PostgreSql / SqlServer
 │   ├── SolutionScaffolder.cs        # Orchestrates folder creation, file writes, and `dotnet sln`
-│   └── ProjectStructure.cs          # Resolves layer project names and the folder tree
+│   ├── ProjectStructure.cs          # Resolves layer project names and the folder tree (new projects)
+│   ├── ExistingProject.cs           # Describes an already-generated project, resolved from disk
+│   └── ExistingProjectLocator.cs    # Locates ExistingProject from the current working directory
 ├── Templates/
 │   ├── CsprojTemplates.cs           # .csproj content for each layer (4-layer, 3-layer, test)
 │   ├── ProgramTemplate.cs           # Generated API Program.cs (+ optional EF Core / JWT wiring)
@@ -166,7 +175,10 @@ BuildQuickPkg/
 │   ├── LaunchSettingsTemplate.cs
 │   └── GitignoreTemplate.cs
 └── Utilities/
-    └── ProcessRunner.cs             # Wraps `dotnet` CLI process execution
+    ├── ProcessRunner.cs             # Wraps `dotnet` CLI process execution
+    ├── CsprojEditor.cs              # Adds PackageReferences to an existing .csproj (used by `add`)
+    ├── ProgramCsEditor.cs           # Patches an existing Program.cs at its stable markers (used by `add`)
+    └── AppSettingsEditor.cs         # Merges JSON sections into an existing appsettings*.json (used by `add`)
 ```
 
 ## Contributing

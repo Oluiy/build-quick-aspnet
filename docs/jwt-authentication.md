@@ -12,6 +12,8 @@ Answering yes to "Add JWT Authentication boilerplate?" wires up bearer-token aut
   - `POST /api/auth/token?username=someone`: issues a signed JWT for the given username. This is a **demo token issuer**, not a real login flow (no password check, no user store); see below.
   - `GET /api/secure`: requires a valid bearer token (`[Authorize]`-equivalent via `.RequireAuthorization()`), returns a simple confirmation message.
 
+Already generated a project without it? Run `BuildQuickPkg add jwt` from the project root; see [Adding a Feature Later](adding-features-later.md).
+
 ## Trying it out
 
 With the API running:

@@ -10,6 +10,12 @@ BuildQuickPkg
 BuildQuickPkg <ProjectName>   # skips the Project Name prompt
 ```
 
+```bash
+BuildQuickPkg --help, -h      # usage and every command, right in the terminal
+BuildQuickPkg add --help      # usage for the add subcommand specifically
+BuildQuickPkg --version, -v   # installed version
+```
+
 Everything else is asked interactively, in this order:
 
 | # | Prompt | Options | Default |
@@ -36,6 +42,10 @@ Use arrow keys + Enter for the multiple-choice prompts (they're rendered by [Spe
 - **Add Entity Framework Core**: see [Entity Framework Core](entity-framework-core.md).
 - **Add Dockerfile & docker-compose.yml**: see [Docker](docker.md).
 - **Add JWT Authentication boilerplate**: see [JWT Authentication](jwt-authentication.md).
+
+## Adding a feature after generation
+
+Said no to Entity Framework Core, Docker, or JWT the first time? You don't have to regenerate the project: `BuildQuickPkg add efcore|jwt|docker` retrofits any of them onto a project you already have. See [Adding a Feature Later](adding-features-later.md) for the full command reference.
 
 ## Exit codes / non-interactive use
 
