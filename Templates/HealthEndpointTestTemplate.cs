@@ -11,6 +11,7 @@ internal static class HealthEndpointTestTemplate
         using System.Net.Http.Json;
         using Microsoft.AspNetCore.Mvc.Testing;
         using Xunit;
+        using {{projectName}}_API;
 
         namespace {{projectName}}.Tests;
 

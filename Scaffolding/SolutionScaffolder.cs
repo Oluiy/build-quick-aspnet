@@ -54,7 +54,7 @@ public static class SolutionScaffolder
         CreateSolutionFile(rootDirectory, config.ProjectName, structures, config);
     }
 
-    /// <summary>Generates one full Clean Architecture project set (folders, csproj files, API artifacts, optional tests) for a single project or service.</summary>
+    /// <summary>Generates one full Clean Architecture project set (folders, csproj files, API artifacts, optional tests, EF Core, Docker) for a single project or service.</summary>
     private static ProjectStructure GenerateProjectSet(string projectName, string outputDirectory, ScaffoldingConfig config, int httpPort, int httpsPort)
     {
         var structure = new ProjectStructure(projectName, outputDirectory);
@@ -64,11 +64,21 @@ public static class SolutionScaffolder
 
         CreateFolders(structure, config.IsFourLayer);
         WriteProjectFiles(structure, config, frameworkPackageVersion);
-        WriteApiArtifacts(structure, projectName, httpPort, httpsPort);
+        WriteApiArtifacts(structure, projectName, httpPort, httpsPort, config);
 
         if (config.IncludeTests)
         {
             WriteTestProject(structure, projectName, config, frameworkPackageVersion);
+        }
+
+        if (config.EfProvider != EfCoreProvider.None)
+        {
+            WriteEfCoreArtifacts(structure, projectName, config);
+        }
+
+        if (config.IncludeDocker)
+        {
+            WriteDockerArtifacts(structure, projectName, config, httpPort);
         }
 
         return structure;
@@ -86,9 +96,13 @@ public static class SolutionScaffolder
     {
         var tfm = config.TargetFramework;
 
+        // In the 3-layer architecture, Infrastructure/Context is folded into Domain, so Domain
+        // gets the EF Core packages instead of a dedicated Infrastructure project.
+        var domainEfProvider = config.IsFourLayer ? EfCoreProvider.None : config.EfProvider;
+
         File.WriteAllText(
             Path.Combine(structure.SrcDirectory, structure.DomainProject, $"{structure.DomainProject}.csproj"),
-            CsprojTemplates.Domain(tfm));
+            CsprojTemplates.Domain(tfm, domainEfProvider, frameworkPackageVersion));
 
         File.WriteAllText(
             Path.Combine(structure.SrcDirectory, structure.ApplicationProject, $"{structure.ApplicationProject}.csproj"),
@@ -98,29 +112,75 @@ public static class SolutionScaffolder
         {
             File.WriteAllText(
                 Path.Combine(structure.SrcDirectory, structure.InfrastructureProject, $"{structure.InfrastructureProject}.csproj"),
-                CsprojTemplates.Infrastructure(structure.DomainProject, structure.ApplicationProject, tfm));
+                CsprojTemplates.Infrastructure(structure.DomainProject, structure.ApplicationProject, tfm, config.EfProvider, frameworkPackageVersion));
 
             File.WriteAllText(
                 Path.Combine(structure.SrcDirectory, structure.ApiProject, $"{structure.ApiProject}.csproj"),
-                CsprojTemplates.Api(structure.ApplicationProject, structure.InfrastructureProject, tfm, frameworkPackageVersion));
+                CsprojTemplates.Api(structure.ApplicationProject, structure.InfrastructureProject, tfm, frameworkPackageVersion, config.IncludeJwt));
         }
         else
         {
             File.WriteAllText(
                 Path.Combine(structure.SrcDirectory, structure.ApiProject, $"{structure.ApiProject}.csproj"),
-                CsprojTemplates.ThreeLayerApi(structure.ApplicationProject, structure.DomainProject, tfm, frameworkPackageVersion));
+                CsprojTemplates.ThreeLayerApi(structure.ApplicationProject, structure.DomainProject, tfm, frameworkPackageVersion, config.IncludeJwt));
         }
     }
 
-    private static void WriteApiArtifacts(ProjectStructure structure, string projectName, int httpPort, int httpsPort)
+    private static void WriteApiArtifacts(ProjectStructure structure, string projectName, int httpPort, int httpsPort, ScaffoldingConfig config)
     {
         File.WriteAllText(
             Path.Combine(structure.SrcDirectory, structure.ApiProject, "Properties", "launchSettings.json"),
             LaunchSettingsTemplate.Generate(httpPort, httpsPort));
 
+        var dbContextNamespace = config.EfProvider == EfCoreProvider.None
+            ? null
+            : DbContextNamespace(structure, config.IsFourLayer);
+
         File.WriteAllText(
             Path.Combine(structure.SrcDirectory, structure.ApiProject, "Program.cs"),
-            ProgramTemplate.Generate(projectName));
+            ProgramTemplate.Generate(projectName, config.EfProvider, dbContextNamespace, config.IncludeJwt));
+
+        File.WriteAllText(
+            Path.Combine(structure.SrcDirectory, structure.ApiProject, "appsettings.json"),
+            AppSettingsTemplate.Base(config.IncludeJwt));
+
+        File.WriteAllText(
+            Path.Combine(structure.SrcDirectory, structure.ApiProject, "appsettings.Development.json"),
+            AppSettingsTemplate.Development(projectName, config.EfProvider, config.IncludeJwt));
+
+        File.WriteAllText(
+            Path.Combine(structure.SrcDirectory, structure.ApiProject, "appsettings.Production.json"),
+            AppSettingsTemplate.Production(config.EfProvider, config.IncludeJwt));
+    }
+
+    /// <summary>The namespace the generated <c>DbContext</c> lives in: <c>{Infrastructure}.Context</c> in the 4-layer architecture, or <c>{Domain}.Infrastructure.Context</c> in the 3-layer architecture.</summary>
+    private static string DbContextNamespace(ProjectStructure structure, bool isFourLayer) => isFourLayer
+        ? $"{structure.InfrastructureProject}.Context"
+        : $"{structure.DomainProject}.Infrastructure.Context";
+
+    private static void WriteEfCoreArtifacts(ProjectStructure structure, string projectName, ScaffoldingConfig config)
+    {
+        var contextDirectory = config.IsFourLayer
+            ? Path.Combine(structure.SrcDirectory, structure.InfrastructureProject, "Context")
+            : Path.Combine(structure.SrcDirectory, structure.DomainProject, "Infrastructure", "Context");
+
+        var dbContextName = $"{projectName}DbContext";
+        var dbContextNamespace = DbContextNamespace(structure, config.IsFourLayer);
+
+        File.WriteAllText(
+            Path.Combine(contextDirectory, $"{dbContextName}.cs"),
+            EfCoreTemplate.DbContext(dbContextName, dbContextNamespace));
+    }
+
+    private static void WriteDockerArtifacts(ProjectStructure structure, string projectName, ScaffoldingConfig config, int httpPort)
+    {
+        File.WriteAllText(
+            Path.Combine(structure.RootDirectory, "Dockerfile"),
+            DockerTemplate.Dockerfile(structure.ApiProject, config.TargetFramework));
+
+        File.WriteAllText(
+            Path.Combine(structure.RootDirectory, "docker-compose.yml"),
+            DockerTemplate.DockerCompose(projectName, httpPort, config.EfProvider));
     }
 
     private static void WriteRootArtifacts(string rootDirectory, string name)

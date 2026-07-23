@@ -31,4 +31,13 @@ public sealed record ScaffoldingConfig
 
     /// <summary>The base HTTPS port written to launchSettings.json. In microservice mode, each service is offset from this by 10.</summary>
     public required int HttpsPort { get; init; }
+
+    /// <summary>The Entity Framework Core provider to scaffold a DbContext and package references for, if any.</summary>
+    public required EfCoreProvider EfProvider { get; init; }
+
+    /// <summary>When true, generates a multi-stage <c>Dockerfile</c> and a <c>docker-compose.yml</c> (including a database service when <see cref="EfProvider"/> is set) for each generated project.</summary>
+    public required bool IncludeDocker { get; init; }
+
+    /// <summary>When true, wires up JWT bearer authentication boilerplate in the generated API project.</summary>
+    public required bool IncludeJwt { get; init; }
 }

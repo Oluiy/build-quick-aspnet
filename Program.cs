@@ -48,6 +48,20 @@ var includeTests = AnsiConsole.Confirm("Include [bold magenta]xUnit Integration 
 var httpPort = AnsiConsole.Ask<int>("What is your [bold green]Port[/]?", 5200);
 var httpsPort = AnsiConsole.Ask<int>("What is your [bold green]HTTPS Port[/]?", 5201);
 
+var efChoice = AnsiConsole.Prompt(
+    new SelectionPrompt<string>()
+        .Title("Add [bold cyan]Entity Framework Core[/]?")
+        .AddChoices(["None", "PostgreSQL", "SQL Server"]));
+var efProvider = efChoice switch
+{
+    "PostgreSQL" => EfCoreProvider.PostgreSql,
+    "SQL Server" => EfCoreProvider.SqlServer,
+    _ => EfCoreProvider.None
+};
+
+var includeDocker = AnsiConsole.Confirm("Add [bold magenta]Dockerfile & docker-compose.yml[/]?", defaultValue: false);
+var includeJwt = AnsiConsole.Confirm("Add [bold magenta]JWT Authentication[/] boilerplate?", defaultValue: false);
+
 // ScaffoldingConfig sent as an object to SolutionScaffolder.
 var config = new ScaffoldingConfig
 {
@@ -60,6 +74,9 @@ var config = new ScaffoldingConfig
     OutputDirectory = Directory.GetCurrentDirectory(),
     HttpPort = httpPort,
     HttpsPort = httpsPort,
+    EfProvider = efProvider,
+    IncludeDocker = includeDocker,
+    IncludeJwt = includeJwt,
 };
 
 await AnsiConsole.Status()
