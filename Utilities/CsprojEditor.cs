@@ -6,10 +6,6 @@ namespace BuildQuickPkg.Utilities;
 /// </summary>
 internal static class CsprojEditor
 {
-    /// <summary>True if the csproj already references <paramref name="packageId"/>, so callers can skip re-adding it.</summary>
-    public static bool HasPackageReference(string csprojPath, string packageId) =>
-        File.ReadAllText(csprojPath).Contains($"Include=\"{packageId}\"", StringComparison.OrdinalIgnoreCase);
-
     /// <summary>
     /// Appends a new <c>ItemGroup</c> of <c>PackageReference</c> entries just before
     /// <c>&lt;/Project&gt;</c>, skipping any package already referenced (so a retry after a

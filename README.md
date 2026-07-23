@@ -153,11 +153,12 @@ The tool itself follows the same separation-of-concerns principle it generates f
 ```
 BuildQuickPkg/
 ├── Program.cs                       # CLI entry point: routes to `add`, or runs the generation prompts
-├── Commands/                        # `BuildQuickPkg add <feature>` — retrofits a feature onto an existing project
+├── Commands/                        # `BuildQuickPkg add <feature>`: retrofits a feature onto an existing project
 │   ├── AddFeatureCommand.cs         # Parses "efcore/jwt/docker" and dispatches to the commands below
 │   ├── AddEfCoreCommand.cs
 │   ├── AddJwtCommand.cs
-│   └── AddDockerCommand.cs
+│   ├── AddDockerCommand.cs
+│   └── HelpText.cs                  # --help / -h output for the root command and `add`
 ├── Scaffolding/
 │   ├── ScaffoldingConfig.cs         # Options record: naming, architecture, ports, tests, EF/Docker/JWT
 │   ├── EfCoreProvider.cs            # None / PostgreSql / SqlServer
@@ -178,7 +179,8 @@ BuildQuickPkg/
     ├── ProcessRunner.cs             # Wraps `dotnet` CLI process execution
     ├── CsprojEditor.cs              # Adds PackageReferences to an existing .csproj (used by `add`)
     ├── ProgramCsEditor.cs           # Patches an existing Program.cs at its stable markers (used by `add`)
-    └── AppSettingsEditor.cs         # Merges JSON sections into an existing appsettings*.json (used by `add`)
+    ├── AppSettingsEditor.cs         # Merges JSON sections into an existing appsettings*.json (used by `add`)
+    └── NameValidation.cs            # Validates a project/service name is safe as a C# namespace + folder name
 ```
 
 ## Contributing

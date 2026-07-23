@@ -46,7 +46,7 @@ internal static class AppSettingsTemplate
 
     /// <summary>
     /// Builds <c>appsettings.Development.json</c>. Loaded when <c>ASPNETCORE_ENVIRONMENT=Development</c>
-    /// (the default for <c>dotnet run</c>) and safe to commit — it only ever points at a local
+    /// (the default for <c>dotnet run</c>) and safe to commit: it only ever points at a local
     /// database and a dev-only JWT signing key, never real secrets.
     /// </summary>
     public static string Development(string projectName, EfCoreProvider efProvider, bool includeJwt)
@@ -88,7 +88,7 @@ internal static class AppSettingsTemplate
     /// <summary>
     /// Builds <c>appsettings.Production.json</c>. Loaded when <c>ASPNETCORE_ENVIRONMENT=Production</c>.
     /// Secrets are left blank here and are expected to be supplied via environment variables
-    /// (e.g. <c>ConnectionStrings__DefaultConnection</c>, <c>Jwt__Key</c>) or a secret manager —
+    /// (e.g. <c>ConnectionStrings__DefaultConnection</c>, <c>Jwt__Key</c>) or a secret manager,
     /// never committed to source control.
     /// </summary>
     public static string Production(EfCoreProvider efProvider, bool includeJwt)

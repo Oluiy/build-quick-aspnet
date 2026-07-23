@@ -9,7 +9,8 @@ namespace BuildQuickPkg.Commands;
 /// </summary>
 internal static class AddFeatureCommand
 {
-    public static void Run(string[] args)
+    /// <returns>True if the feature was added (or was already present) without error; false otherwise, so <c>Program.cs</c> can exit with a non-zero code.</returns>
+    public static bool Run(string[] args)
     {
         ExistingProject project;
         try
@@ -19,7 +20,7 @@ internal static class AddFeatureCommand
         catch (InvalidOperationException ex)
         {
             AnsiConsole.MarkupLine($"[red]{ex.Message}[/]");
-            return;
+            return false;
         }
 
         var feature = args.Length > 0 ? args[0] : ResolveFeatureInteractively(project.ProjectName);
@@ -30,24 +31,25 @@ internal static class AddFeatureCommand
             {
                 case "efcore" or "ef" or "entityframework" or "entityframeworkcore":
                     AddEfCoreCommand.Run(project, args.Length > 1 ? args[1] : null);
-                    break;
+                    return true;
 
                 case "jwt" or "jwtauth" or "auth":
                     AddJwtCommand.Run(project);
-                    break;
+                    return true;
 
                 case "docker":
                     AddDockerCommand.Run(project);
-                    break;
+                    return true;
 
                 default:
                     AnsiConsole.MarkupLine($"[red]Unknown feature '{feature}'.[/] Use one of: efcore, jwt, docker.");
-                    break;
+                    return false;
             }
         }
         catch (InvalidOperationException ex)
         {
             AnsiConsole.MarkupLine($"[red]{ex.Message}[/]");
+            return false;
         }
     }
 

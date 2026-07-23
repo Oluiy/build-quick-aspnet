@@ -127,7 +127,7 @@ internal static class ProgramTemplate
     }
 
     /// <summary>Builds the extra <c>using</c> directives needed for <paramref name="efProvider"/> and/or JWT, reused by <c>BuildQuickPkg add</c> to patch an existing Program.cs.</summary>
-    internal static string BuildExtraUsings(EfCoreProvider efProvider, string? dbContextNamespace, bool includeJwt)
+    public static string BuildExtraUsings(EfCoreProvider efProvider, string? dbContextNamespace, bool includeJwt)
     {
         var usings = new List<string>();
 
@@ -156,7 +156,7 @@ internal static class ProgramTemplate
     /// directly, but Swagger UI has no way to know about it or to let you supply a token.
     /// Reused by <c>BuildQuickPkg add jwt</c> to patch an existing Program.cs.
     /// </summary>
-    internal static string BuildSwaggerJwtSecurity(bool includeJwt)
+    public static string BuildSwaggerJwtSecurity(bool includeJwt)
     {
         if (!includeJwt)
         {
@@ -183,7 +183,7 @@ internal static class ProgramTemplate
     }
 
     /// <summary>Builds the <c>AddDbContext</c> registration block, reused by <c>BuildQuickPkg add efcore</c> to patch an existing Program.cs.</summary>
-    internal static string BuildDbContextRegistration(EfCoreProvider efProvider, string dbContextName)
+    public static string BuildDbContextRegistration(EfCoreProvider efProvider, string dbContextName)
     {
         if (efProvider == EfCoreProvider.None)
         {
@@ -200,7 +200,7 @@ internal static class ProgramTemplate
     }
 
     /// <summary>Builds the JWT bearer authentication service registration, reused by <c>BuildQuickPkg add jwt</c> to patch an existing Program.cs.</summary>
-    internal static string BuildAuthRegistration(bool includeJwt)
+    public static string BuildAuthRegistration(bool includeJwt)
     {
         if (!includeJwt)
         {
@@ -229,12 +229,12 @@ internal static class ProgramTemplate
     }
 
     /// <summary>Builds the <c>UseAuthentication</c>/<c>UseAuthorization</c> middleware lines, reused by <c>BuildQuickPkg add jwt</c> to patch an existing Program.cs.</summary>
-    internal static string BuildAuthMiddleware(bool includeJwt) => includeJwt
+    public static string BuildAuthMiddleware(bool includeJwt) => includeJwt
         ? "\n                    app.UseAuthentication();\n                    app.UseAuthorization();\n"
         : "";
 
     /// <summary>Builds the sample token-issuing and protected endpoints, reused by <c>BuildQuickPkg add jwt</c> to patch an existing Program.cs.</summary>
-    internal static string BuildAuthSampleEndpoints(bool includeJwt)
+    public static string BuildAuthSampleEndpoints(bool includeJwt)
     {
         if (!includeJwt)
         {

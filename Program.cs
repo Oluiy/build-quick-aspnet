@@ -21,7 +21,7 @@ if (wantsHelp)
         HelpText.PrintRoot();
     }
 
-    return;
+    return 0;
 }
 
 if (args.Length > 0 && (args[0] == "--version" || args[0] == "-v"))
@@ -30,13 +30,13 @@ if (args.Length > 0 && (args[0] == "--version" || args[0] == "-v"))
         .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
         ?? "unknown";
     AnsiConsole.MarkupLine($"BuildQuickPkg {version}");
-    return;
+    return 0;
 }
 
 if (args.Length > 0 && string.Equals(args[0], "add", StringComparison.OrdinalIgnoreCase))
 {
-    AddFeatureCommand.Run(args[1..]);
-    return;
+    var succeeded = AddFeatureCommand.Run(args[1..]);
+    return succeeded ? 0 : 1;
 }
 
 AnsiConsole.Write(new FigletText("ASP.NET Core").Color(Color.Cyan1));
@@ -48,7 +48,7 @@ if (args.Length > 0)
     if (!NameValidation.IsValidIdentifierName(projectName))
     {
         AnsiConsole.MarkupLine($"[red]'{args[0]}' isn't a valid project name.[/] Use only letters, digits, and underscores, starting with a letter.");
-        return;
+        return 1;
     }
 }
 else
@@ -129,15 +129,27 @@ var config = new ScaffoldingConfig
     IncludeJwt = includeJwt,
 };
 
-await AnsiConsole.Status()
-    .StartAsync("Generating Clean Architecture Solution...", async ctx =>
-    {
-        ctx.Spinner(Spinner.Known.Dots);
-        ctx.SpinnerStyle(Style.Parse("green"));
+try
+{
+    await AnsiConsole.Status()
+        .StartAsync("Generating Clean Architecture Solution...", async ctx =>
+        {
+            ctx.Spinner(Spinner.Known.Dots);
+            ctx.SpinnerStyle(Style.Parse("green"));
 
-        SolutionScaffolder.Generate(config);
-        await Task.Delay(400);
-    });
+            SolutionScaffolder.Generate(config);
+            await Task.Delay(400);
+        });
+}
+catch (Exception ex)
+{
+    // Never let a raw stack trace reach the terminal: this is the outermost boundary of the
+    // generation flow, so anything that escapes here (a bad name that slipped past validation,
+    // a failed `dotnet` CLI call, a disk/permission error) gets a clean message instead.
+    // Whatever files were written before the failure are left as-is for inspection.
+    AnsiConsole.MarkupLine($"\n[red]Generation failed:[/] {ex.Message}");
+    return 1;
+}
 
 if (isMicroservice)
 {
@@ -155,6 +167,8 @@ else
 
 TimeSpan elapsed = Stopwatch.GetElapsedTime(startTime);
 AnsiConsole.MarkupLine($"[bold cyan]Total time: {elapsed.TotalSeconds} seconds[/]");
+
+return 0;
 
 // Prompts for a project/service name, trimming stray leading/trailing whitespace and rejecting
 // anything that wouldn't be safe as a C# namespace segment or folder name (e.g. embedded spaces),
