@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <meta name="description" content="Docs for BuildQuickPkg, an interactive .NET CLI that scaffolds Clean Architecture ASP.NET Core solutions.">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@5/dist/themes/addons/core-dark.min.css" media="(prefers-color-scheme: dark)" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@5/dist/themes/addons/vue.min.css" />
 </head>
 <body>
   <div id="app"></div>
@@ -26,7 +28,22 @@
         buttonText: 'Copy',
         errorText: 'Error',
         successText: 'Copied',
-      }
+      },
+      plugins: [
+        function (hook, vm) {
+          hook.afterEach(function (html) {
+            return html + '<hr/><div id="page-footer"></div>'
+          })
+          hook.doneEach(function () {
+            fetch('_about.md')
+              .then(function (res) { return res.text() })
+              .then(function (md) {
+                var el = document.getElementById('page-footer')
+                if (el) el.innerHTML = vm.compiler.compile(md)
+              })
+          })
+        }
+      ]
     }
   </script>
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
