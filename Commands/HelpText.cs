@@ -63,6 +63,6 @@ internal static class HelpText
         AnsiConsole.MarkupLine("  [grey]BuildQuickPkg add[/]                       Prompts for which feature to add");
         AnsiConsole.WriteLine();
 
-        AnsiConsole.MarkupLine("Full docs: [underline]https://github.com/Oluiy/build-quick-aspnet/blob/main/docs/adding-features-later.md[/]");
+        AnsiConsole.MarkupLine("Full docs: [underline]https://github.com/Oluiy/build-quick-aspnet/blob/main/docs/guides/adding-features-later.md[/]");
     }
 }

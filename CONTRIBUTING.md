@@ -18,6 +18,10 @@ dotnet run
 dotnet run -- MyTestApp
 ```
 
+## A note on editing docs via GitHub's web UI
+
+The `docs/` site (rendered by Docsify at https://oluiy.github.io/build-quick-aspnet/) is just the `docs/` folder on `main`; there's no separate build or publish step. That means edits made with GitHub's web editor (the pencil icon on github.com) commit directly to `main`, the same branch your local clones push to.
+
 ## Project layout
 
 See the [Project source layout](README.md#project-source-layout) section of the README for how `Program.cs`, `Scaffolding/`, `Templates/`, and `Utilities/` fit together.
@@ -45,7 +49,7 @@ There's no automated test suite for the generator itself yet (contributions welc
 ## Pull requests
 
 - Keep PRs focused on one change; unrelated cleanups make review harder.
-- Update `README.md`, and the relevant guide under [`docs/`](docs/README.md), if you're adding or changing a prompt, generated file, or folder.
+- Update `README.md`, and the relevant guide under [`docs/guides/`](docs/guides/README.md), if you're adding or changing a prompt, generated file, or folder.
 - Describe what you tested (see above) in the PR description.
 
 ## Reporting bugs / requesting features

@@ -7,7 +7,7 @@ An interactive .NET CLI tool that scaffolds a complete **Clean Architecture** AS
 
 ![BuildQuickPkg demo: running the CLI to generate a Clean Architecture solution with EF Core, Docker, and JWT boilerplate](docs/assets/demo.gif)
 
-📖 **[Full documentation](docs/README.md)**: getting started, CLI reference, architecture guide, EF Core, Docker, JWT, microservices, and troubleshooting.
+📖 **[Full documentation](https://oluiy.github.io/build-quick-aspnet/)** (or [browse in-repo](docs/guides/README.md)): getting started, CLI reference, architecture guide, EF Core, Docker, JWT, microservices, and troubleshooting.
 
 ## What it generates
 
@@ -67,7 +67,7 @@ Three more prompts let you opt into common boilerplate at generation time:
 
 In microservice mode, each service gets its own `appsettings.*`, `DbContext`, `Dockerfile`, and `docker-compose.yml`.
 
-Said no to one of these and want it later? `BuildQuickPkg add efcore|jwt|docker` retrofits it onto a project you already generated, no regeneration needed. See [Adding a Feature Later](docs/adding-features-later.md).
+Said no to one of these and want it later? `BuildQuickPkg add efcore|jwt|docker` retrofits it onto a project you already generated, no regeneration needed. See [Adding a Feature Later](docs/guides/adding-features-later.md).
 
 Project references are pre-wired according to Clean Architecture's dependency rule: `API → Application, Infrastructure`, `Infrastructure → Application, Domain`, `Application → Domain`, and `Domain` depends on nothing. The generated API project includes Swagger/OpenAPI, CORS, and Serilog structured logging out of the box, plus a sample `/api/health` endpoint, so the solution is immediately runnable and testable.
 
@@ -109,7 +109,7 @@ Every generated API ships with [Serilog](https://serilog.net/) wired up via `Ser
 dotnet tool install --global BuildQuickPkg
 ```
 
-Upgrading, downgrading to a specific version, and uninstalling are covered in [Managing your install](docs/getting-started.md#managing-your-install).
+Upgrading, downgrading to a specific version, and uninstalling are covered in [Managing your install](docs/guides/getting-started.md#managing-your-install).
 
 ## Usage
 

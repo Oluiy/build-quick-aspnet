@@ -7,5 +7,8 @@ nupkg/
 *.user
 *.userosscache
 *.sln.docstates
+.DS_Store
 
 oss-template/
+study.md
+DetailedArchitecture.md
