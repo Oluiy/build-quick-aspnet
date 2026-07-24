@@ -49,4 +49,4 @@ Said no to Entity Framework Core, Docker, or JWT the first time? You don't have 
 
 ## Exit codes / non-interactive use
 
-BuildQuickPkg is fully interactive; it doesn't currently support answering all prompts via command-line flags or a config file. If you need to script project generation (e.g. in CI, or to generate many projects from a template), that's a good candidate for a feature request or contribution; see [CONTRIBUTING.md](../CONTRIBUTING.md).
+BuildQuickPkg is fully interactive; it doesn't currently support answering all prompts via command-line flags or a config file. If you need to script project generation (e.g. in CI, or to generate many projects from a template), that's a good candidate for a feature request or contribution; see [CONTRIBUTING.md](https://github.com/Oluiy/build-quick-aspnet/blob/main/CONTRIBUTING.md).

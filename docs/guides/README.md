@@ -21,5 +21,5 @@ New to ASP.NET Core entirely? Getting Started assumes you have the .NET SDK inst
 ## Where to go for help
 
 - Bugs or feature requests: [open an issue](https://github.com/Oluiy/build-quick-aspnet/issues)
-- Want to contribute to the tool itself: see [CONTRIBUTING.md](../CONTRIBUTING.md)
-- Everything else: the main [README.md](../README.md)
+- Want to contribute to the tool itself: see [CONTRIBUTING.md](https://github.com/Oluiy/build-quick-aspnet/blob/main/CONTRIBUTING.md)
+- Everything else: the main [README.md](https://github.com/Oluiy/build-quick-aspnet/blob/main/README.md)
