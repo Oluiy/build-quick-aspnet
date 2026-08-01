@@ -18,23 +18,57 @@ internal static class AddJwtCommand
             return;
         }
 
+        var apiStyle = ProjectFeatureDetector.DetectApiStyle(project);
         var frameworkPackageVersion = $"{project.TargetFramework.Replace("net", "")}.*";
 
         // Patch Program.cs first: it's the one step that can fail (missing markers), and it
         // writes atomically, so if it throws, nothing below has touched disk yet.
-        var usings = ProgramTemplate.BuildExtraUsings(EfCoreProvider.None, dbContextNamespace: null, includeJwt: true);
+        var usings = ProgramTemplate.BuildExtraUsings(EfCoreProvider.None, dbContextNamespace: null, includeJwt: true, apiStyle);
         var swaggerSecurity = ProgramTemplate.BuildSwaggerJwtSecurity(includeJwt: true);
-        var registration = ProgramTemplate.BuildAuthRegistration(includeJwt: true);
         var middleware = ProgramTemplate.BuildAuthMiddleware(includeJwt: true);
-        var endpoints = ProgramTemplate.BuildAuthSampleEndpoints(includeJwt: true);
-        ProgramCsEditor.ApplyInsertions(programCsPath,
-        [
+
+        // Controller style already has AddControllers()/IHealthService registered from generation
+        // time, so only the IAuthService line needs adding there; Minimal style has nothing yet.
+        var servicesInsertion = apiStyle == ApiStyle.Controller
+            ? ProgramTemplate.BuildAuthRegistration(includeJwt: true) + ProgramTemplate.BuildAuthServiceRegistration(includeJwt: true)
+            : ProgramTemplate.BuildAuthRegistration(includeJwt: true);
+
+        var insertions = new List<(string Marker, string Code)>
+        {
             (ProgramCsEditor.UsingsMarker, usings + "\n"),
             (ProgramCsEditor.SwaggerMarker, swaggerSecurity + "\n"),
-            (ProgramCsEditor.ServicesMarker, registration + "\n"),
+            (ProgramCsEditor.ServicesMarker, servicesInsertion + "\n"),
             (ProgramCsEditor.MiddlewareMarker, middleware),
-            (ProgramCsEditor.EndpointsMarker, endpoints + "\n"),
-        ]);
+        };
+
+        if (apiStyle == ApiStyle.Minimal)
+        {
+            insertions.Add((ProgramCsEditor.EndpointsMarker, ProgramTemplate.BuildAuthSampleEndpoints(includeJwt: true) + "\n"));
+        }
+
+        ProgramCsEditor.ApplyInsertions(programCsPath, insertions);
+
+        if (apiStyle == ApiStyle.Controller)
+        {
+            var applicationProjectDirectory = Path.Combine(project.SrcDirectory, $"{project.ProjectName}_Application");
+            var controllersDirectory = Path.Combine(project.ApiProjectDirectory, "Controllers");
+            var serviceInterfacesDirectory = Path.Combine(applicationProjectDirectory, "Services", "Interfaces");
+            var serviceImplementationDirectory = Path.Combine(applicationProjectDirectory, "Services", "Implementation");
+
+            File.WriteAllText(Path.Combine(controllersDirectory, "AuthController.cs"), ControllerTemplate.AuthController(project.ProjectName));
+            File.WriteAllText(Path.Combine(serviceInterfacesDirectory, "IAuthService.cs"), ControllerTemplate.IAuthService(project.ProjectName));
+            File.WriteAllText(Path.Combine(serviceImplementationDirectory, "AuthService.cs"), ControllerTemplate.AuthService(project.ProjectName));
+
+            // AuthService.cs needs these here too: the Application project uses the plain
+            // Microsoft.NET.Sdk (not Sdk.Web), so it doesn't get IConfiguration for free, and it
+            // has no other reason to already reference the JWT package.
+            var applicationCsprojPath = Path.Combine(applicationProjectDirectory, $"{project.ProjectName}_Application.csproj");
+            CsprojEditor.AddPackageReferences(applicationCsprojPath,
+            [
+                ("Microsoft.AspNetCore.Authentication.JwtBearer", frameworkPackageVersion),
+                ("Microsoft.Extensions.Configuration.Abstractions", frameworkPackageVersion),
+            ]);
+        }
 
         CsprojEditor.AddPackageReferences(project.ApiCsprojPath,
         [

@@ -41,4 +41,7 @@ public sealed record ScaffoldingConfig
 
     /// <summary>When true, wires up JWT bearer authentication boilerplate in the generated API project.</summary>
     public required bool IncludeJwt { get; init; }
+
+    /// <summary>Whether the generated sample endpoints use top-level Minimal API calls or Controllers backed by a service.</summary>
+    public required ApiStyle ApiStyle { get; init; }
 }

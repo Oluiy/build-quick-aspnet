@@ -21,6 +21,9 @@ internal static class HelpText
         AnsiConsole.MarkupLine("  [bold]add[/] efcore <postgres|sqlserver>   Add Entity Framework Core to an existing project");
         AnsiConsole.MarkupLine("  [bold]add[/] jwt                          Add JWT bearer authentication to an existing project");
         AnsiConsole.MarkupLine("  [bold]add[/] docker                       Add a Dockerfile & docker-compose.yml to an existing project");
+        AnsiConsole.MarkupLine("  [bold]add[/] repository                   Add a generic Repository/UnitOfWork (requires efcore first)");
+        AnsiConsole.MarkupLine("  [bold]add[/] env                          Add a .env with dummy values matching the project's setup");
+        AnsiConsole.MarkupLine("  [bold]add[/] caddy                        Add a Caddyfile reverse proxy");
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("Run [bold]BuildQuickPkg add --help[/] for details on retrofitting a feature.");
         AnsiConsole.WriteLine();
@@ -48,6 +51,9 @@ internal static class HelpText
         AnsiConsole.MarkupLine("  [bold]efcore[/] <postgres|sqlserver>   Adds the provider package, a starter DbContext, and wires up AddDbContext");
         AnsiConsole.MarkupLine("  [bold]jwt[/]                          Adds JWT bearer auth services, middleware, and sample token/secure endpoints");
         AnsiConsole.MarkupLine("  [bold]docker[/]                       Adds a Dockerfile and docker-compose.yml");
+        AnsiConsole.MarkupLine("  [bold]repository[/]                   Adds a generic IRepository<T>/Repository<T> + IUnitOfWork/UnitOfWork (requires efcore first)");
+        AnsiConsole.MarkupLine("  [bold]env[/]                          Adds a .env with dummy values matching the project's EF Core/JWT/port setup, and gitignores it");
+        AnsiConsole.MarkupLine("  [bold]caddy[/]                        Adds a Caddyfile reverse proxy pointed at the project's real port");
         AnsiConsole.WriteLine();
 
         AnsiConsole.MarkupLine("Leave off [[feature]] or [[option]] and you'll be prompted for it interactively.");

@@ -73,6 +73,11 @@ public static class SolutionScaffolder
         WriteProjectFiles(structure, config, frameworkPackageVersion);
         WriteApiArtifacts(structure, projectName, httpPort, httpsPort, config);
 
+        if (config.ApiStyle == ApiStyle.Controller)
+        {
+            WriteControllerArtifacts(structure, projectName, config.IncludeJwt);
+        }
+
         if (config.IncludeTests)
         {
             WriteTestProject(structure, projectName, config, frameworkPackageVersion);
@@ -111,9 +116,10 @@ public static class SolutionScaffolder
             Path.Combine(structure.SrcDirectory, structure.DomainProject, $"{structure.DomainProject}.csproj"),
             CsprojTemplates.Domain(tfm, domainEfProvider, frameworkPackageVersion));
 
+        var applicationNeedsJwtPackages = config.ApiStyle == ApiStyle.Controller && config.IncludeJwt;
         File.WriteAllText(
             Path.Combine(structure.SrcDirectory, structure.ApplicationProject, $"{structure.ApplicationProject}.csproj"),
-            CsprojTemplates.Application(structure.DomainProject, tfm));
+            CsprojTemplates.Application(structure.DomainProject, tfm, applicationNeedsJwtPackages, frameworkPackageVersion));
 
         if (config.IsFourLayer)
         {
@@ -145,7 +151,7 @@ public static class SolutionScaffolder
 
         File.WriteAllText(
             Path.Combine(structure.SrcDirectory, structure.ApiProject, "Program.cs"),
-            ProgramTemplate.Generate(projectName, config.EfProvider, dbContextNamespace, config.IncludeJwt));
+            ProgramTemplate.Generate(projectName, config.EfProvider, dbContextNamespace, config.IncludeJwt, config.ApiStyle));
 
         File.WriteAllText(
             Path.Combine(structure.SrcDirectory, structure.ApiProject, "appsettings.json"),
@@ -158,6 +164,31 @@ public static class SolutionScaffolder
         File.WriteAllText(
             Path.Combine(structure.SrcDirectory, structure.ApiProject, "appsettings.Production.json"),
             AppSettingsTemplate.Production(config.EfProvider, config.IncludeJwt));
+    }
+
+    /// <summary>
+    /// Writes the Controller + service pair for Controller-style API projects: a
+    /// <c>HealthController</c> always, plus an <c>AuthController</c> when JWT is also selected.
+    /// Both the API project's <c>Controllers/</c> folder and the Application project's
+    /// <c>Services/Interfaces</c> and <c>Services/Implementation</c> folders already exist
+    /// (created by <see cref="ProjectStructure.GetFolders"/>).
+    /// </summary>
+    private static void WriteControllerArtifacts(ProjectStructure structure, string projectName, bool includeJwt)
+    {
+        var controllersDirectory = Path.Combine(structure.SrcDirectory, structure.ApiProject, "Controllers");
+        var serviceInterfacesDirectory = Path.Combine(structure.SrcDirectory, structure.ApplicationProject, "Services", "Interfaces");
+        var serviceImplementationDirectory = Path.Combine(structure.SrcDirectory, structure.ApplicationProject, "Services", "Implementation");
+
+        File.WriteAllText(Path.Combine(controllersDirectory, "HealthController.cs"), ControllerTemplate.HealthController(projectName));
+        File.WriteAllText(Path.Combine(serviceInterfacesDirectory, "IHealthService.cs"), ControllerTemplate.IHealthService(projectName));
+        File.WriteAllText(Path.Combine(serviceImplementationDirectory, "HealthService.cs"), ControllerTemplate.HealthService(projectName));
+
+        if (includeJwt)
+        {
+            File.WriteAllText(Path.Combine(controllersDirectory, "AuthController.cs"), ControllerTemplate.AuthController(projectName));
+            File.WriteAllText(Path.Combine(serviceInterfacesDirectory, "IAuthService.cs"), ControllerTemplate.IAuthService(projectName));
+            File.WriteAllText(Path.Combine(serviceImplementationDirectory, "AuthService.cs"), ControllerTemplate.AuthService(projectName));
+        }
     }
 
     /// <summary>The namespace the generated <c>DbContext</c> lives in: <c>{Infrastructure}.Context</c> in the 4-layer architecture, or <c>{Domain}.Infrastructure.Context</c> in the 3-layer architecture.</summary>

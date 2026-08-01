@@ -93,8 +93,14 @@ internal static class CsprojTemplates
         </Project>
         """;
 
-    /// <summary>Builds the Application layer project file, referencing Domain.</summary>
-    public static string Application(string domainProject, string targetFramework) => $$"""
+    /// <summary>
+    /// Builds the Application layer project file, referencing Domain. Gets the JWT package (and
+    /// <c>Microsoft.Extensions.Configuration.Abstractions</c>, for <c>IConfiguration</c>, since this
+    /// project uses the plain <c>Microsoft.NET.Sdk</c> rather than <c>Sdk.Web</c> and doesn't get it
+    /// for free) when <paramref name="includeJwtPackages"/> is true: that's exactly when the
+    /// generated <c>AuthService</c> (Controller API style + JWT) lives here and needs them.
+    /// </summary>
+    public static string Application(string domainProject, string targetFramework, bool includeJwtPackages, string frameworkPackageVersion) => $$"""
         <Project Sdk="Microsoft.NET.Sdk">
           <PropertyGroup>
             <TargetFramework>{{targetFramework}}</TargetFramework>
@@ -105,8 +111,20 @@ internal static class CsprojTemplates
           <ItemGroup>
             <ProjectReference Include="..\{{domainProject}}\{{domainProject}}.csproj" />
           </ItemGroup>
+        {{ApplicationJwtItemGroup(includeJwtPackages, frameworkPackageVersion)}}
         </Project>
         """;
+
+    /// <summary>Builds the Application project's JWT-related <c>ItemGroup</c>, or an empty string when not needed.</summary>
+    private static string ApplicationJwtItemGroup(bool includeJwtPackages, string frameworkPackageVersion) => includeJwtPackages
+        ? $$"""
+
+              <ItemGroup>
+                <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="{{frameworkPackageVersion}}" />
+                <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="{{frameworkPackageVersion}}" />
+              </ItemGroup>
+        """
+        : "";
 
     /// <summary>Builds the Infrastructure layer project file, referencing Domain and Application. Gets the Entity Framework Core packages when a provider was selected, since <c>Context/</c> lives here in the 4-layer architecture.</summary>
     public static string Infrastructure(string domainProject, string applicationProject, string targetFramework, EfCoreProvider efProvider, string frameworkPackageVersion) => $$"""

@@ -41,8 +41,20 @@ internal static class AddFeatureCommand
                     AddDockerCommand.Run(project);
                     return true;
 
+                case "repository" or "repo" or "unitofwork":
+                    AddRepositoryCommand.Run(project);
+                    return true;
+
+                case "env" or "dotenv":
+                    AddEnvCommand.Run(project);
+                    return true;
+
+                case "caddy" or "reverseproxy" or "reverse-proxy" or "proxy":
+                    AddCaddyCommand.Run(project);
+                    return true;
+
                 default:
-                    AnsiConsole.MarkupLine($"[red]Unknown feature '{feature}'.[/] Use one of: efcore, jwt, docker.");
+                    AnsiConsole.MarkupLine($"[red]Unknown feature '{feature}'.[/] Use one of: efcore, jwt, docker, repository, env, caddy.");
                     return false;
             }
         }
@@ -57,5 +69,5 @@ internal static class AddFeatureCommand
         AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title($"What would you like to [bold cyan]add[/] to [bold yellow]{projectName}[/]?")
-                .AddChoices(["efcore", "jwt", "docker"]));
+                .AddChoices(["efcore", "jwt", "docker", "repository", "env", "caddy"]));
 }

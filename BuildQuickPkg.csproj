@@ -8,12 +8,24 @@
     <Nullable>enable</Nullable>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
 
-  <PackAsTool>true</PackAsTool>
-  <ToolCommandName>BuildQuickPkg</ToolCommandName>
-  <PackageId>BuildQuickPkg</PackageId>
-  <Version>1.0.9</Version>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>BuildQuickPkg</ToolCommandName>
+    <PackageId>BuildQuickPkg</PackageId>
+    <Version>1.1.0</Version>
+    <PackageReleaseNotes><![CDATA[
+1.1.0
 
-  <PackageReleaseNotes><![CDATA[
+New:
+- API Style prompt: choose Minimal API (top-level Map* endpoints) or Standard API (Controllers backed by an interface/service pair, the service-controller pattern). Both styles expose identical URLs; Standard API is what populates the Controllers/ and Services/Interfaces+Implementation folders that every generated project already scaffolds.
+- New "BuildQuickPkg add repository" command: adds a generic IRepository<T>/Repository<T> plus IUnitOfWork/UnitOfWork with basic CRUD (GetByIdAsync, GetAllAsync, AddAsync, Update, Remove, SaveChangesAsync), written next to your DbContext. Requires "add efcore" first.
+- New "BuildQuickPkg add env" command: generates a .env file with dummy values matching what's actually configured in the project (connection string if EF Core is set up, JWT settings if JWT is set up, always the port), and adds .env to .gitignore automatically.
+- New "BuildQuickPkg add caddy" command: generates a Caddyfile reverse proxy wired to the project's real configured port.
+- "BuildQuickPkg add jwt" is now Controller-style aware: retrofitting JWT onto a Standard API project adds an AuthController + IAuthService/AuthService instead of top-level endpoints, matching how the project was generated.
+- A visual documentation site (Docsify, zero build step) now ships under /docs, browsable at https://oluiy.github.io/build-quick-aspnet/, with the same guides as the in-repo docs plus search and sidebar navigation.
+
+Fixed:
+- Controller-style projects with JWT enabled failed to build: the generated AuthService.cs lives in the Application project, which had no package reference for JWT types or IConfiguration. The Application project's .csproj now gets those packages when Standard API + JWT are both selected (or retrofitted via "add jwt").
+
 1.0.9
 
 New:
@@ -40,14 +52,16 @@ Fixed:
 - When JWT is enabled, Swagger UI now actually shows an Authorize button and lock icons (via a Bearer security scheme registered with Swashbuckle) instead of silently ignoring authentication entirely. Also fixed in the "add jwt" retrofit command.
 ]]></PackageReleaseNotes>
 
-  <Authors>Iyanuoluwa Akinboyewa(Oluiy)</Authors>
-  <Description>Interactive CLI that scaffolds a Clean Architecture ASP.NET Core solution (API, Application, Domain, Infrastructure), monolithic or microservice, with Serilog structured logging built in.</Description>
-  <PackageTags>dotnet;aspnetcore;clean-architecture;scaffolding;cli;template</PackageTags>
-  <PackageProjectUrl>https://github.com/Oluiy/build-quick-aspnet</PackageProjectUrl>
-  <RepositoryUrl>https://github.com/Oluiy/build-quick-aspnet</RepositoryUrl>
-  <PackageLicenseExpression>MIT</PackageLicenseExpression>
-  <PackageReadmeFile>README.md</PackageReadmeFile>
- </PropertyGroup>
+    <Authors>Iyanuoluwa Akinboyewa (Oluiy)</Authors>
+    <Title>BuildQuickPkg - Interactive ASP.NET Core Clean Architecture CLI Scaffolder</Title>
+    <Description>An interactive .NET global tool that scaffolds a production-ready Clean Architecture ASP.NET Core solution (3-Layer or 4-Layer, Minimal API or Controllers) in seconds. Supports Monolithic and Microservice styles, with optional Entity Framework Core (PostgreSQL/SQL Server), a generic Repository/UnitOfWork pattern, JWT authentication, Docker, a Caddy reverse proxy, and .env generation, all addable later via "BuildQuickPkg add" without regenerating the project. Ships with Serilog structured logging and pre-configured xUnit integration tests out of the box.</Description>
+    <PackageTags>dotnet aspnetcore clean-architecture interactive cli scaffolding generator template webapi microservices monolith efcore entity-framework-core docker jwt minimal-api controllers repository-pattern unit-of-work caddy reverse-proxy dotnet-tool dotnet-cli csharp architecture</PackageTags>
+    <PackageProjectUrl>https://oluiy.github.io/build-quick-aspnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Oluiy/build-quick-aspnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.57.2" />

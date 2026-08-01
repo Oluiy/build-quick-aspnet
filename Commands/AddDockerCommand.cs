@@ -1,5 +1,6 @@
 using BuildQuickPkg.Scaffolding;
 using BuildQuickPkg.Templates;
+using BuildQuickPkg.Utilities;
 using Spectre.Console;
 
 namespace BuildQuickPkg.Commands;
@@ -19,49 +20,13 @@ internal static class AddDockerCommand
         }
 
         var apiProjectName = $"{project.ProjectName}_API";
-        var httpPort = ReadHttpPort(project.ApiProjectDirectory) ?? 5200;
-        var efProvider = DetectEfProvider(project);
+        var httpPort = ProjectFeatureDetector.ReadHttpPort(project) ?? 5200;
+        var efProvider = ProjectFeatureDetector.DetectEfProvider(project);
 
         File.WriteAllText(dockerfilePath, DockerTemplate.Dockerfile(apiProjectName, project.TargetFramework));
         File.WriteAllText(composePath, DockerTemplate.DockerCompose(project.ProjectName, httpPort, efProvider));
 
         AnsiConsole.MarkupLine($"\n[bold green]✨ Done![/] Dockerfile and docker-compose.yml added to [bold yellow]{project.ProjectName}[/].");
         AnsiConsole.MarkupLine("Run it: [bold cyan]docker compose up --build[/]");
-    }
-
-    private static int? ReadHttpPort(string apiProjectDirectory)
-    {
-        var launchSettingsPath = Path.Combine(apiProjectDirectory, "Properties", "launchSettings.json");
-        if (!File.Exists(launchSettingsPath))
-        {
-            return null;
-        }
-
-        var root = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(launchSettingsPath));
-        var httpUrl = root?["profiles"]?["http"]?["applicationUrl"]?.GetValue<string>();
-        var portText = httpUrl?.Split(':').LastOrDefault();
-
-        return int.TryParse(portText, out var port) ? port : null;
-    }
-
-    private static EfCoreProvider DetectEfProvider(ExistingProject project)
-    {
-        if (!File.Exists(project.ContextOwnerCsprojPath))
-        {
-            return EfCoreProvider.None;
-        }
-
-        var content = File.ReadAllText(project.ContextOwnerCsprojPath);
-        if (content.Contains("Npgsql.EntityFrameworkCore.PostgreSQL", StringComparison.Ordinal))
-        {
-            return EfCoreProvider.PostgreSql;
-        }
-
-        if (content.Contains("Microsoft.EntityFrameworkCore.SqlServer", StringComparison.Ordinal))
-        {
-            return EfCoreProvider.SqlServer;
-        }
-
-        return EfCoreProvider.None;
     }
 }

@@ -70,6 +70,15 @@ var archType = AnsiConsole.Prompt(
         ]));
 var isFourLayer = archType.StartsWith("4-Layer");
 
+var apiStyleChoice = AnsiConsole.Prompt(
+    new SelectionPrompt<string>()
+        .Title("Select your preferred [bold cyan]API Style[/]:")
+        .AddChoices([
+            "Minimal API (top-level Map* endpoints)",
+            "Standard API (Controllers + Services)"
+        ]));
+var apiStyle = apiStyleChoice.StartsWith("Minimal") ? ApiStyle.Minimal : ApiStyle.Controller;
+
 var deploymentStyle = AnsiConsole.Prompt(
     new SelectionPrompt<string>()
         .Title("Select your [bold cyan]Deployment Style[/]:")
@@ -127,6 +136,7 @@ var config = new ScaffoldingConfig
     EfProvider = efProvider,
     IncludeDocker = includeDocker,
     IncludeJwt = includeJwt,
+    ApiStyle = apiStyle,
 };
 
 try

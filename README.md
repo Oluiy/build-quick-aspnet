@@ -57,17 +57,21 @@ Every generated API ships all three settings files, loaded by ASP.NET Core's sta
 | `appsettings.Development.json` | `ASPNETCORE_ENVIRONMENT=Development` (default for `dotnet run`) | A working local connection string and a dev-only JWT signing key, safe to commit and never used in production |
 | `appsettings.Production.json` | `ASPNETCORE_ENVIRONMENT=Production` | Connection string and JWT key left blank, meant to be supplied via environment variables (`ConnectionStrings__DefaultConnection`, `Jwt__Key`) or a secret manager |
 
+### API style
+
+Choose **Minimal API** (top-level `app.MapGet`/`app.MapPost` calls in `Program.cs`) or **Standard API** (Controllers backed by an interface/service pair, the service-controller pattern). Every generated project has `Controllers/`, `Services/Interfaces/`, and `Services/Implementation/` folders either way; Standard API is what actually populates them. Both styles expose the same URLs, so this only changes how the code is organized.
+
 ### Optional add-ons
 
 Three more prompts let you opt into common boilerplate at generation time:
 
 - **Entity Framework Core** (`None` / `PostgreSQL` / `SQL Server`): adds the provider package plus `Microsoft.EntityFrameworkCore.Design` to the layer that owns `Infrastructure/Context` (the dedicated Infrastructure project in 4-layer, or Domain in 3-layer), generates a starter `{ProjectName}DbContext`, wires up `AddDbContext` in `Program.cs`, and writes matching connection strings into `appsettings.Development.json`.
 - **Dockerfile & docker-compose.yml**: a multi-stage `Dockerfile` (SDK build → ASP.NET runtime) and a `docker-compose.yml` with an `api` service; when EF Core is also selected, a `db` service (Postgres or SQL Server) is included and wired up via `ConnectionStrings__DefaultConnection`.
-- **JWT Authentication boilerplate**: adds `Microsoft.AspNetCore.Authentication.JwtBearer`, registers bearer-token authentication/authorization, and wires up two sample endpoints: `POST /api/auth/token` (issues a token) and `GET /api/secure` (requires one), so you can see it working immediately.
+- **JWT Authentication boilerplate**: adds `Microsoft.AspNetCore.Authentication.JwtBearer`, registers bearer-token authentication/authorization, and wires up two sample endpoints: `POST /api/auth/token` (issues a token) and `GET /api/secure` (requires one), so you can see it working immediately. In Standard API style, these are an `AuthController` + `IAuthService`/`AuthService` instead of top-level endpoints.
 
 In microservice mode, each service gets its own `appsettings.*`, `DbContext`, `Dockerfile`, and `docker-compose.yml`.
 
-Said no to one of these and want it later? `BuildQuickPkg add efcore|jwt|docker` retrofits it onto a project you already generated, no regeneration needed. See [Adding a Feature Later](docs/guides/adding-features-later.md).
+Said no to one of these and want it later? `BuildQuickPkg add efcore|jwt|docker|repository|env|caddy` retrofits it onto a project you already generated, no regeneration needed. See [Adding a Feature Later](docs/guides/adding-features-later.md).
 
 Project references are pre-wired according to Clean Architecture's dependency rule: `API → Application, Infrastructure`, `Infrastructure → Application, Domain`, `Application → Domain`, and `Domain` depends on nothing. The generated API project includes Swagger/OpenAPI, CORS, and Serilog structured logging out of the box, plus a sample `/api/health` endpoint, so the solution is immediately runnable and testable.
 
@@ -126,6 +130,7 @@ You'll be prompted interactively for:
 | Project Name | free text, default `MyAwesomeApi` (skipped if passed as an argument) |
 | Target Framework | `net8.0` / `net9.0` / `net10.0` |
 | Architecture Pattern | 4-layer (with Infrastructure) / 3-layer |
+| API Style | Minimal API / Standard API (Controllers + Services) |
 | Deployment Style | Monolithic / Microservice |
 | Number of services + a name for each | *(microservice only)* |
 | Include xUnit test project | yes / no, default yes |
@@ -154,24 +159,32 @@ The tool itself follows the same separation-of-concerns principle it generates f
 BuildQuickPkg/
 ├── Program.cs                       # CLI entry point: routes to `add`, or runs the generation prompts
 ├── Commands/                        # `BuildQuickPkg add <feature>`: retrofits a feature onto an existing project
-│   ├── AddFeatureCommand.cs         # Parses "efcore/jwt/docker" and dispatches to the commands below
+│   ├── AddFeatureCommand.cs         # Parses "efcore/jwt/docker/repository/env/caddy" and dispatches to the commands below
 │   ├── AddEfCoreCommand.cs
 │   ├── AddJwtCommand.cs
 │   ├── AddDockerCommand.cs
+│   ├── AddRepositoryCommand.cs      # Generic Repository/UnitOfWork (requires efcore first)
+│   ├── AddEnvCommand.cs             # .env with dummy values matching the project's actual setup
+│   ├── AddCaddyCommand.cs           # Caddyfile reverse proxy
 │   └── HelpText.cs                  # --help / -h output for the root command and `add`
 ├── Scaffolding/
-│   ├── ScaffoldingConfig.cs         # Options record: naming, architecture, ports, tests, EF/Docker/JWT
+│   ├── ScaffoldingConfig.cs         # Options record: naming, architecture, API style, ports, tests, EF/Docker/JWT
 │   ├── EfCoreProvider.cs            # None / PostgreSql / SqlServer
+│   ├── ApiStyle.cs                  # Minimal / Controller
 │   ├── SolutionScaffolder.cs        # Orchestrates folder creation, file writes, and `dotnet sln`
 │   ├── ProjectStructure.cs          # Resolves layer project names and the folder tree (new projects)
 │   ├── ExistingProject.cs           # Describes an already-generated project, resolved from disk
 │   └── ExistingProjectLocator.cs    # Locates ExistingProject from the current working directory
 ├── Templates/
 │   ├── CsprojTemplates.cs           # .csproj content for each layer (4-layer, 3-layer, test)
-│   ├── ProgramTemplate.cs           # Generated API Program.cs (+ optional EF Core / JWT wiring)
+│   ├── ProgramTemplate.cs           # Generated API Program.cs (+ optional EF Core / JWT / Controller wiring)
+│   ├── ControllerTemplate.cs        # Health/Auth Controller + service pairs for Standard API style
+│   ├── RepositoryTemplate.cs        # Generic IRepository<T>/Repository<T> + IUnitOfWork/UnitOfWork
 │   ├── AppSettingsTemplate.cs       # appsettings.json / .Development.json / .Production.json
 │   ├── EfCoreTemplate.cs            # Generated DbContext + provider package/connection-string helpers
 │   ├── DockerTemplate.cs            # Dockerfile + docker-compose.yml
+│   ├── EnvTemplate.cs               # .env content matching the project's actual setup
+│   ├── CaddyTemplate.cs             # Caddyfile reverse proxy
 │   ├── HealthEndpointTestTemplate.cs # Generated xUnit health-check test
 │   ├── LaunchSettingsTemplate.cs
 │   └── GitignoreTemplate.cs
@@ -180,6 +193,7 @@ BuildQuickPkg/
     ├── CsprojEditor.cs              # Adds PackageReferences to an existing .csproj (used by `add`)
     ├── ProgramCsEditor.cs           # Patches an existing Program.cs at its stable markers (used by `add`)
     ├── AppSettingsEditor.cs         # Merges JSON sections into an existing appsettings*.json (used by `add`)
+    ├── ProjectFeatureDetector.cs    # Reads an existing project's actual EF Core/JWT/API style/port (used by `add`)
     └── NameValidation.cs            # Validates a project/service name is safe as a C# namespace + folder name
 ```
 

@@ -16,15 +16,18 @@ internal static class ProgramTemplate
     /// <param name="efProvider">The Entity Framework Core provider to wire up, or <see cref="EfCoreProvider.None"/> to skip it.</param>
     /// <param name="dbContextNamespace">The namespace the generated <c>DbContext</c> lives in. Required when <paramref name="efProvider"/> is not <see cref="EfCoreProvider.None"/>.</param>
     /// <param name="includeJwt">When true, adds JWT bearer authentication services, middleware, a token-issuing endpoint, and a sample protected endpoint.</param>
-    public static string Generate(string projectName, EfCoreProvider efProvider, string? dbContextNamespace, bool includeJwt)
+    /// <param name="apiStyle">When <see cref="ApiStyle.Controller"/>, sample endpoints are generated as Controllers backed by a service instead of top-level Minimal API calls.</param>
+    public static string Generate(string projectName, EfCoreProvider efProvider, string? dbContextNamespace, bool includeJwt, ApiStyle apiStyle)
     {
         var dbContextName = $"{projectName}DbContext";
-        var extraUsings = BuildExtraUsings(efProvider, dbContextNamespace, includeJwt);
+        var extraUsings = BuildExtraUsings(efProvider, dbContextNamespace, includeJwt, apiStyle, projectName);
         var swaggerJwtSecurity = BuildSwaggerJwtSecurity(includeJwt);
         var dbContextRegistration = BuildDbContextRegistration(efProvider, dbContextName);
         var authRegistration = BuildAuthRegistration(includeJwt);
         var authMiddleware = BuildAuthMiddleware(includeJwt);
-        var authSampleEndpoints = BuildAuthSampleEndpoints(includeJwt);
+        var controllerServices = BuildControllerServices(apiStyle, includeJwt);
+        var sampleEndpoints = BuildSampleEndpoints(apiStyle, projectName);
+        var authSampleEndpoints = apiStyle == ApiStyle.Minimal ? BuildAuthSampleEndpoints(includeJwt) : "";
 
         return $$"""
         using Serilog;
@@ -73,6 +76,7 @@ internal static class ProgramTemplate
                     });
         {{dbContextRegistration}}
         {{authRegistration}}
+        {{controllerServices}}
                     // BuildQuickPkg:services
                     var app = builder.Build();
 
@@ -102,13 +106,7 @@ internal static class ProgramTemplate
         {{authMiddleware}}
                     // BuildQuickPkg:middleware
                     // 5. Working Sample Endpoints
-                    app.MapGet("/api/health", () => Results.Ok(new
-                    {
-                        Status = "Healthy",
-                        Project = "{{projectName}} API",
-                        Timestamp = DateTime.UtcNow
-                    }))
-                    .WithName("HealthCheck");
+        {{sampleEndpoints}}
         {{authSampleEndpoints}}
                     // BuildQuickPkg:endpoints
                     app.Run();
@@ -126,8 +124,17 @@ internal static class ProgramTemplate
         """;
     }
 
-    /// <summary>Builds the extra <c>using</c> directives needed for <paramref name="efProvider"/> and/or JWT, reused by <c>BuildQuickPkg add</c> to patch an existing Program.cs.</summary>
-    public static string BuildExtraUsings(EfCoreProvider efProvider, string? dbContextNamespace, bool includeJwt)
+    /// <summary>
+    /// Builds the extra <c>using</c> directives needed for <paramref name="efProvider"/> and/or
+    /// JWT, reused by <c>BuildQuickPkg add</c> to patch an existing Program.cs. <c>System.IdentityModel.Tokens.Jwt</c>
+    /// and <c>System.Security.Claims</c> are only needed when <paramref name="apiStyle"/> is
+    /// <see cref="ApiStyle.Minimal"/>: in Controller style, that token-issuing code lives in
+    /// <c>AuthService.cs</c> instead of Program.cs. <paramref name="projectName"/> is only needed
+    /// (and the Application-layer service usings only added) when generating a fresh Controller-style
+    /// Program.cs from scratch; retrofit commands leave it null since those usings, if the project is
+    /// Controller-style, were already added when the project was first generated.
+    /// </summary>
+    public static string BuildExtraUsings(EfCoreProvider efProvider, string? dbContextNamespace, bool includeJwt, ApiStyle apiStyle = ApiStyle.Minimal, string? projectName = null)
     {
         var usings = new List<string>();
 
@@ -141,9 +148,19 @@ internal static class ProgramTemplate
         {
             usings.Add("using Microsoft.AspNetCore.Authentication.JwtBearer;");
             usings.Add("using Microsoft.IdentityModel.Tokens;");
-            usings.Add("using System.IdentityModel.Tokens.Jwt;");
-            usings.Add("using System.Security.Claims;");
             usings.Add("using System.Text;");
+
+            if (apiStyle == ApiStyle.Minimal)
+            {
+                usings.Add("using System.IdentityModel.Tokens.Jwt;");
+                usings.Add("using System.Security.Claims;");
+            }
+        }
+
+        if (apiStyle == ApiStyle.Controller && projectName is not null)
+        {
+            usings.Add($"using {projectName}_Application.Services.Interfaces;");
+            usings.Add($"using {projectName}_Application.Services.Implementation;");
         }
 
         return usings.Count == 0 ? "" : string.Join("\n", usings);
@@ -232,6 +249,62 @@ internal static class ProgramTemplate
     public static string BuildAuthMiddleware(bool includeJwt) => includeJwt
         ? "\n                    app.UseAuthentication();\n                    app.UseAuthorization();\n"
         : "";
+
+    /// <summary>
+    /// Builds the <c>AddControllers</c> service registration plus the sample services' DI
+    /// registrations, or an empty string when <paramref name="apiStyle"/> is
+    /// <see cref="ApiStyle.Minimal"/>. Reused by <c>BuildQuickPkg add jwt</c> when retrofitting
+    /// JWT onto a Controller-style project (adds the <c>IAuthService</c> registration).
+    /// </summary>
+    public static string BuildControllerServices(ApiStyle apiStyle, bool includeJwt)
+    {
+        if (apiStyle != ApiStyle.Controller)
+        {
+            return "";
+        }
+
+        return $$"""
+
+                    // 2d. Controllers
+                    builder.Services.AddControllers();
+                    builder.Services.AddScoped<IHealthService, HealthService>();{{BuildAuthServiceRegistration(includeJwt)}}
+        """;
+    }
+
+    /// <summary>
+    /// Builds just the <c>IAuthService</c> DI registration line, reused by <c>BuildQuickPkg add jwt</c>
+    /// when retrofitting JWT onto a Controller-style project (where <c>AddControllers()</c> and the
+    /// <c>IHealthService</c> registration are already there from generation time, so only this one
+    /// line needs adding).
+    /// </summary>
+    public static string BuildAuthServiceRegistration(bool includeJwt) => includeJwt
+        ? "\n                    builder.Services.AddScoped<IAuthService, AuthService>();"
+        : "";
+
+    /// <summary>
+    /// Builds the health-check sample endpoint: a top-level <c>MapGet</c> for
+    /// <see cref="ApiStyle.Minimal"/>, or just <c>app.MapControllers()</c> for
+    /// <see cref="ApiStyle.Controller"/> (the actual endpoint lives in the generated
+    /// <c>HealthController</c> instead).
+    /// </summary>
+    public static string BuildSampleEndpoints(ApiStyle apiStyle, string projectName)
+    {
+        if (apiStyle == ApiStyle.Controller)
+        {
+            return "\n                    app.MapControllers();\n";
+        }
+
+        return $$"""
+
+                    app.MapGet("/api/health", () => Results.Ok(new
+                    {
+                        Status = "Healthy",
+                        Project = "{{projectName}} API",
+                        Timestamp = DateTime.UtcNow
+                    }))
+                    .WithName("HealthCheck");
+        """;
+    }
 
     /// <summary>Builds the sample token-issuing and protected endpoints, reused by <c>BuildQuickPkg add jwt</c> to patch an existing Program.cs.</summary>
     public static string BuildAuthSampleEndpoints(bool includeJwt)
