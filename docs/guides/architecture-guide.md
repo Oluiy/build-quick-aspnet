@@ -47,7 +47,7 @@ No dedicated Infrastructure project; those concerns are folded into `Domain/Infr
 
 ## Where Entity Framework Core fits
 
-If you say yes to EF Core during generation, the `DbContext` and its NuGet packages go wherever `Infrastructure/Context` lives for the architecture you picked: the dedicated Infrastructure project in 4-layer, or `Domain/Infrastructure/Context` in 3-layer. See [Entity Framework Core](entity-framework-core.md) for the full picture.
+If you say yes to EF Core during generation, the `DbContext` and its NuGet packages go wherever `Infrastructure/Context` lives for the architecture you picked: the dedicated Infrastructure project in 4-layer, or `Domain/Infrastructure/Context` in 3-layer. See [Entity Framework Core](guides/entity-framework-core.md) for the full picture.
 
 ## Folder reference
 
@@ -65,4 +65,4 @@ If you say yes to EF Core during generation, the `DbContext` and its NuGet packa
 
 ## Monolithic vs. microservice
 
-Architecture pattern (4-layer/3-layer) and deployment style (monolithic/microservice) are independent choices: you can generate a 3-layer microservice split, or a 4-layer monolith, or any other combination. See [Microservices](microservices.md) for how the microservice option changes the output tree.
+Architecture pattern (4-layer/3-layer) and deployment style (monolithic/microservice) are independent choices: you can generate a 3-layer microservice split, or a 4-layer monolith, or any other combination. See [Microservices](guides/microservices.md) for how the microservice option changes the output tree.

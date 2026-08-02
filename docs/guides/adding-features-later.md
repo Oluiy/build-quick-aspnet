@@ -48,9 +48,9 @@ If you run it from a microservice aggregate root with more than one service unde
 
 Exactly what you'd have gotten by answering "yes" at generation time; see the dedicated guide for the full picture of each:
 
-- [Entity Framework Core](entity-framework-core.md): the provider package, a starter `DbContext`, `AddDbContext` wired into `Program.cs`, and a connection string in `appsettings.Development.json`.
-- [JWT Authentication](jwt-authentication.md): the `JwtBearer` package, auth services/middleware, the sample token-issuing and protected endpoints, and the `Jwt` config section. If the project was generated with the Standard API style, this adds an `AuthController` + `IAuthService`/`AuthService` instead of the minimal endpoints; either way the URLs are identical.
-- [Docker](docker.md): the `Dockerfile` and `docker-compose.yml`.
+- [Entity Framework Core](guides/entity-framework-core.md): the provider package, a starter `DbContext`, `AddDbContext` wired into `Program.cs`, and a connection string in `appsettings.Development.json`.
+- [JWT Authentication](guides/jwt-authentication.md): the `JwtBearer` package, auth services/middleware, the sample token-issuing and protected endpoints, and the `Jwt` config section. If the project was generated with the Standard API style, this adds an `AuthController` + `IAuthService`/`AuthService` instead of the minimal endpoints; either way the URLs are identical.
+- [Docker](guides/docker.md): the `Dockerfile` and `docker-compose.yml`.
 - **repository**: a generic `IRepository<T>`/`Repository<T>` plus `IUnitOfWork`/`UnitOfWork` with basic CRUD (`GetByIdAsync`, `GetAllAsync`, `AddAsync`, `Update`, `Remove`, `SaveChangesAsync`), written next to the DbContext (Infrastructure in 4-layer, `Domain/Infrastructure` in 3-layer). Requires `add efcore` to have been run first; it works against any entity, since it doesn't know what entities you have.
 - **env**: a `.env` file at the project root, with dummy values that reflect what's actually configured (`ConnectionStrings__DefaultConnection` if EF Core is set up, `Jwt__*` if JWT is set up, always `ASPNETCORE_ENVIRONMENT`/`ASPNETCORE_URLS`). Automatically added to `.gitignore`.
 - **caddy**: a `Caddyfile` at the project root, reverse-proxying to the project's actual configured port. Replace `localhost` with your real domain before deploying.

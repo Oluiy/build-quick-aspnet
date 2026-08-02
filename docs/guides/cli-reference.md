@@ -37,17 +37,17 @@ Use arrow keys + Enter for the multiple-choice prompts (they're rendered by [Spe
 
 ## What each prompt controls
 
-- **Architecture Pattern**: see the [Architecture Guide](architecture-guide.md) for exactly what each layer contains and where Entity Framework Core's `DbContext` ends up in each.
+- **Architecture Pattern**: see the [Architecture Guide](guides/architecture-guide.md) for exactly what each layer contains and where Entity Framework Core's `DbContext` ends up in each.
 - **API Style**: Minimal API keeps every sample endpoint as a top-level `app.MapGet`/`app.MapPost` call in `Program.cs`. Standard API generates a Controller backed by an interface/service pair instead (the `Controllers/` and `Services/Interfaces`+`Services/Implementation` folders exist in every generated project either way; Standard API is what actually populates them). Both styles expose the exact same URLs, so this only changes how the code is organized, not what it does.
-- **Deployment Style**: Monolithic generates one solution; Microservice generates one independent solution per named service plus an aggregate root `.sln`. See [Microservices](microservices.md).
+- **Deployment Style**: Monolithic generates one solution; Microservice generates one independent solution per named service plus an aggregate root `.sln`. See [Microservices](guides/microservices.md).
 - **Port / HTTPS Port**: written to `Properties/launchSettings.json`. In microservice mode, each service after the first is offset by `+10` (service 1 gets 5200/5201, service 2 gets 5210/5211, and so on) so they don't collide when run side by side.
-- **Add Entity Framework Core**: see [Entity Framework Core](entity-framework-core.md).
-- **Add Dockerfile & docker-compose.yml**: see [Docker](docker.md).
-- **Add JWT Authentication boilerplate**: see [JWT Authentication](jwt-authentication.md).
+- **Add Entity Framework Core**: see [Entity Framework Core](guides/entity-framework-core.md).
+- **Add Dockerfile & docker-compose.yml**: see [Docker](guides/docker.md).
+- **Add JWT Authentication boilerplate**: see [JWT Authentication](guides/jwt-authentication.md).
 
 ## Adding a feature after generation
 
-Said no to Entity Framework Core, Docker, or JWT the first time? You don't have to regenerate the project: `BuildQuickPkg add efcore|jwt|docker|repository|env|caddy` retrofits any of them onto a project you already have. See [Adding a Feature Later](adding-features-later.md) for the full command reference.
+Said no to Entity Framework Core, Docker, or JWT the first time? You don't have to regenerate the project: `BuildQuickPkg add efcore|jwt|docker|repository|env|caddy` retrofits any of them onto a project you already have. See [Adding a Feature Later](guides/adding-features-later.md) for the full command reference.
 
 ## Exit codes / non-interactive use
 

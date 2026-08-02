@@ -8,12 +8,12 @@ Answering yes to "Add JWT Authentication boilerplate?" wires up bearer-token aut
 - `builder.Services.AddAuthentication(...).AddJwtBearer(...)` in `Program.cs`, configured to validate issuer, audience, lifetime, and signing key against your `Jwt:*` configuration.
 - `app.UseAuthentication()` / `app.UseAuthorization()` in the middleware pipeline, in the correct order (after CORS, before endpoint mapping).
 - A JWT bearer security scheme registered with Swashbuckle (`AddSecurityDefinition`/`AddSecurityRequirement`), so Swagger UI actually shows an **Authorize** button and lock icons instead of silently ignoring auth entirely. Without this, JWT still works against the API directly; Swagger UI just has no way to know about it or let you attach a token.
-- A `Jwt` section in `appsettings.json` (`Issuer`, `Audience`, `ExpiryMinutes`) and a signing key in `appsettings.Development.json`; see [Getting Started](getting-started.md) for how the three `appsettings.*` files layer.
+- A `Jwt` section in `appsettings.json` (`Issuer`, `Audience`, `ExpiryMinutes`) and a signing key in `appsettings.Development.json`; see [Getting Started](guides/getting-started.md) for how the three `appsettings.*` files layer.
 - Two sample endpoints in `Program.cs`:
   - `POST /api/auth/token?username=someone`: issues a signed JWT for the given username. This is a **demo token issuer**, not a real login flow (no password check, no user store); see below.
   - `GET /api/secure`: requires a valid bearer token (`[Authorize]`-equivalent via `.RequireAuthorization()`), returns a simple confirmation message.
 
-Already generated a project without it? Run `BuildQuickPkg add jwt` from the project root; see [Adding a Feature Later](adding-features-later.md).
+Already generated a project without it? Run `BuildQuickPkg add jwt` from the project root; see [Adding a Feature Later](guides/adding-features-later.md).
 
 ## Trying it out
 

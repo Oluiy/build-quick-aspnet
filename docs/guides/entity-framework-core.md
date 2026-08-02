@@ -2,12 +2,12 @@
 
 Answering `PostgreSQL` or `SQL Server` to the "Add Entity Framework Core?" prompt gets you:
 
-- The right NuGet packages (`Npgsql.EntityFrameworkCore.PostgreSQL` or `Microsoft.EntityFrameworkCore.SqlServer`, plus `Microsoft.EntityFrameworkCore.Design` for migrations tooling) added to whichever project owns `Infrastructure/Context` for your chosen [architecture](architecture-guide.md): the dedicated Infrastructure project in 4-layer, or `Domain/Infrastructure/Context` in 3-layer.
+- The right NuGet packages (`Npgsql.EntityFrameworkCore.PostgreSQL` or `Microsoft.EntityFrameworkCore.SqlServer`, plus `Microsoft.EntityFrameworkCore.Design` for migrations tooling) added to whichever project owns `Infrastructure/Context` for your chosen [architecture](guides/architecture-guide.md): the dedicated Infrastructure project in 4-layer, or `Domain/Infrastructure/Context` in 3-layer.
 - A starter `DbContext` class, named `{ProjectName}DbContext`, in that `Context/` folder, with no `DbSet<T>` properties yet, since it doesn't know your entities.
 - `builder.Services.AddDbContext<{ProjectName}DbContext>(...)` wired into `Program.cs`, reading the connection string from configuration.
 - A working local connection string in `appsettings.Development.json`, and a blank one in `appsettings.Production.json` (see below).
 
-Already generated a project without it? Run `BuildQuickPkg add efcore postgres` (or `sqlserver`) from the project root; see [Adding a Feature Later](adding-features-later.md).
+Already generated a project without it? Run `BuildQuickPkg add efcore postgres` (or `sqlserver`) from the project root; see [Adding a Feature Later](guides/adding-features-later.md).
 
 ## 1. Add your entities
 

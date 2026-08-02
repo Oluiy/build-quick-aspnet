@@ -27,7 +27,7 @@ Run it from the directory you want your new solution created in:
 BuildQuickPkg
 ```
 
-You'll be walked through a series of prompts (project name, target framework, architecture, ports, and a few optional add-ons). Full details on each one are in the [CLI Reference](cli-reference.md); for a first run, the defaults are fine, just press Enter through them.
+You'll be walked through a series of prompts (project name, target framework, architecture, ports, and a few optional add-ons). Full details on each one are in the [CLI Reference](guides/cli-reference.md); for a first run, the defaults are fine, just press Enter through them.
 
 You can also skip the project-name prompt by passing it as an argument:
 
@@ -55,9 +55,9 @@ Open the URL printed in the terminal (defaults to `http://localhost:5200`); you'
 
 If you also said yes to Entity Framework Core, Docker, or JWT, see their dedicated guides:
 
-- [Entity Framework Core](entity-framework-core.md)
-- [Docker](docker.md)
-- [JWT Authentication](jwt-authentication.md)
+- [Entity Framework Core](guides/entity-framework-core.md)
+- [Docker](guides/docker.md)
+- [JWT Authentication](guides/jwt-authentication.md)
 
 ## 6. Next run
 
