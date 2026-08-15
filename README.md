@@ -2,6 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![NuGet](https://img.shields.io/nuget/v/BuildQuickPkg.svg)](https://www.nuget.org/packages/BuildQuickPkg)
+[![Downloads](https://img.shields.io/nuget/dt/BuildQuickPkg.svg)](https://www.nuget.org/packages/BuildQuickPkg)
+[![GitHub](https://img.shields.io/github/stars/oluiy/build-quick-aspnet.svg?style=social)](https://github.com/oluiy/build-quick-aspnet)
 
 An interactive .NET CLI tool that scaffolds a complete **Clean Architecture** ASP.NET Core solution: API, Application, Domain, and (optionally) Infrastructure projects, already wired up, testable, and building in seconds. Stop hand-rolling the same folder structure and `.csproj` references for every new API.
 
