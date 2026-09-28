@@ -1,13 +1,13 @@
 # buildquickpkg
 
-[![license: mit](https://img.shields.io/badge/license-mit-yellow.svg)](license)
+[![license: mit](https://img.shields.io/badge/license-mit-yellow.svg)](LICENSE)
 [![nuget](https://img.shields.io/nuget/v/buildquickpkg.svg)](https://www.nuget.org/packages/buildquickpkg)
 [![downloads](https://img.shields.io/nuget/dt/buildquickpkg.svg)](https://www.nuget.org/packages/buildquickpkg)
 [![github](https://img.shields.io/github/stars/oluiy/build-quick-aspnet.svg?style=social)](https://github.com/oluiy/build-quick-aspnet)
 
 an interactive .net cli tool that scaffolds a complete **clean architecture** asp.net core solution: api, application, domain, and (optionally) infrastructure projects, already wired up, testable, and building in seconds. stop hand-rolling the same folder structure and `.csproj` references for every new api.
 
-![buildquickpkg demo: running the cli to generate a clean architecture solution with ef core, docker, and jwt boilerplate](docs/assets/demo.gif)
+![buildquickpkg demo: running the cli to generate a clean architecture solution with ef core, docker, and jwt boilerplate](https://raw.githubusercontent.com/Oluiy/build-quick-aspnet/main/docs/assets/demo.gif)
 
 📖 **[full documentation](https://oluiy.github.io/build-quick-aspnet/)** (or [browse in-repo](docs/guides/readme.md)): getting started, cli reference, architecture guide, ef core, docker, jwt, microservices, and troubleshooting.
 
@@ -109,8 +109,8 @@ creates `iorderservice.cs` with the namespace already filled in (`myawesomeapi_a
 
 ## contributing
 
-issues and pull requests are welcome. see [contributing.md](contributing.md) for how to get set up, add a new generation option, and test your change.
+issues and pull requests are welcome. see [CONTRIBUTING.md](CONTRIBUTING.md) for how to get set up, add a new generation option, and test your change. to find your way around the code first, read [how the tool's own code is organized](DEVELOPMENT.md#project-source-layout).
 
 ## license
 
-mit. see [license](license).
+mit. see [LICENSE](LICENSE).
