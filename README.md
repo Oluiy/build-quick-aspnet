@@ -1,208 +1,116 @@
-# BuildQuickPkg
+# buildquickpkg
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![NuGet](https://img.shields.io/nuget/v/BuildQuickPkg.svg)](https://www.nuget.org/packages/BuildQuickPkg)
-[![Downloads](https://img.shields.io/nuget/dt/BuildQuickPkg.svg)](https://www.nuget.org/packages/BuildQuickPkg)
-[![GitHub](https://img.shields.io/github/stars/oluiy/build-quick-aspnet.svg?style=social)](https://github.com/oluiy/build-quick-aspnet)
+[![license: mit](https://img.shields.io/badge/license-mit-yellow.svg)](license)
+[![nuget](https://img.shields.io/nuget/v/buildquickpkg.svg)](https://www.nuget.org/packages/buildquickpkg)
+[![downloads](https://img.shields.io/nuget/dt/buildquickpkg.svg)](https://www.nuget.org/packages/buildquickpkg)
+[![github](https://img.shields.io/github/stars/oluiy/build-quick-aspnet.svg?style=social)](https://github.com/oluiy/build-quick-aspnet)
 
-An interactive .NET CLI tool that scaffolds a complete **Clean Architecture** ASP.NET Core solution: API, Application, Domain, and (optionally) Infrastructure projects, already wired up, testable, and building in seconds. Stop hand-rolling the same folder structure and `.csproj` references for every new API.
+an interactive .net cli tool that scaffolds a complete **clean architecture** asp.net core solution: api, application, domain, and (optionally) infrastructure projects, already wired up, testable, and building in seconds. stop hand-rolling the same folder structure and `.csproj` references for every new api.
 
-![BuildQuickPkg demo: running the CLI to generate a Clean Architecture solution with EF Core, Docker, and JWT boilerplate](docs/assets/demo.gif)
+![buildquickpkg demo: running the cli to generate a clean architecture solution with ef core, docker, and jwt boilerplate](docs/assets/demo.gif)
 
-📖 **[Full documentation](https://oluiy.github.io/build-quick-aspnet/)** (or [browse in-repo](docs/guides/README.md)): getting started, CLI reference, architecture guide, EF Core, Docker, JWT, microservices, and troubleshooting.
+📖 **[full documentation](https://oluiy.github.io/build-quick-aspnet/)** (or [browse in-repo](docs/guides/readme.md)): getting started, cli reference, architecture guide, ef core, docker, jwt, microservices, and troubleshooting.
 
-## What it generates
+## what it generates
 
-Given a project name of `MyAwesomeApi` with the 4-layer architecture and tests enabled, the tool creates:
+given a project name of `myawesomeapi` with the 4-layer architecture and tests enabled, the tool creates:
 
 ```
-MyAwesomeApi/
-├── MyAwesomeApi.sln
+myawesomeapi/
+├── myawesomeapi.sln
 ├── .gitignore
-├── README.md
-├── Dockerfile                         # (optional) multi-stage build → publish → run
+├── readme.md
+├── dockerfile                         # (optional) multi-stage build → publish → run
 ├── docker-compose.yml                 # (optional) api + db services
 ├── src/
-│   ├── MyAwesomeApi_API/              # Presentation layer (Minimal API, Swagger, CORS, launch profiles)
-│   │   ├── Controllers/
-│   │   ├── Extensions/
-│   │   ├── Middlewares/
-│   │   ├── Properties/launchSettings.json
-│   │   ├── appsettings.json           # shared settings (logging, JWT issuer/audience, ...)
-│   │   ├── appsettings.Development.json # local connection string + dev JWT signing key
-│   │   ├── appsettings.Production.json  # secrets left blank, supplied via env vars
-│   │   └── Program.cs
-│   ├── MyAwesomeApi_Application/      # Use cases / business logic
-│   │   ├── Services/Implementation/
-│   │   ├── Services/Interfaces/
-│   │   └── Utilities/
-│   ├── MyAwesomeApi_Domain/           # Entities, DTOs, enums, no dependencies on other layers
-│   │   ├── Dtos/RequestDtos/
-│   │   ├── Dtos/ResponseDtos/
-│   │   ├── Entity/
-│   │   └── Enums/
-│   └── MyAwesomeApi_Infrastructure/   # EF Core, external services, persistence
-│       ├── Context/                   # (optional) generated DbContext when EF Core is selected
-│       └── Migrations/
+│   ├── myawesomeapi_api/              # presentation layer (minimal api, swagger, cors, launch profiles)
+│   │   ├── controllers/
+│   │   ├── extensions/
+│   │   ├── middlewares/
+│   │   ├── properties/launchsettings.json
+│   │   ├── appsettings.json           # shared settings (logging, jwt issuer/audience, ...)
+│   │   ├── appsettings.development.json # local connection string + dev jwt signing key
+│   │   ├── appsettings.production.json  # secrets left blank, supplied via env vars
+│   │   └── program.cs
+│   ├── myawesomeapi_application/      # use cases / business logic
+│   │   ├── services/implementation/
+│   │   ├── services/interfaces/
+│   │   └── utilities/
+│   ├── myawesomeapi_domain/           # entities, dtos, enums, no dependencies on other layers
+│   │   ├── dtos/requestdtos/
+│   │   ├── dtos/responsedtos/
+│   │   ├── entity/
+│   │   └── enums/
+│   └── myawesomeapi_infrastructure/   # ef core, external services, persistence
+│       ├── context/                   # (optional) generated dbcontext when ef core is selected
+│       └── migrations/
 └── tests/
-    └── MyAwesomeApi_API.Tests/        # xUnit + WebApplicationFactory integration tests
-        └── HealthEndpointTests.cs
+    └── myawesomeapi_api.tests/        # xunit + webapplicationfactory integration tests
+        └── healthendpointtests.cs
 ```
 
-### appsettings.json, per environment
 
-Every generated API ships all three settings files, loaded by ASP.NET Core's standard `appsettings.json` → `appsettings.{Environment}.json` → environment variables layering:
-
-| File | Loaded when | Contains |
-| --- | --- | --- |
-| `appsettings.json` | Always (base layer) | Logging defaults, `AllowedHosts`, and the JWT issuer/audience/expiry when JWT is enabled |
-| `appsettings.Development.json` | `ASPNETCORE_ENVIRONMENT=Development` (default for `dotnet run`) | A working local connection string and a dev-only JWT signing key, safe to commit and never used in production |
-| `appsettings.Production.json` | `ASPNETCORE_ENVIRONMENT=Production` | Connection string and JWT key left blank, meant to be supplied via environment variables (`ConnectionStrings__DefaultConnection`, `Jwt__Key`) or a secret manager |
-
-### API style
-
-Choose **Minimal API** (top-level `app.MapGet`/`app.MapPost` calls in `Program.cs`) or **Standard API** (Controllers backed by an interface/service pair, the service-controller pattern). Every generated project has `Controllers/`, `Services/Interfaces/`, and `Services/Implementation/` folders either way; Standard API is what actually populates them. Both styles expose the same URLs, so this only changes how the code is organized.
-
-### Optional add-ons
-
-Three more prompts let you opt into common boilerplate at generation time:
-
-- **Entity Framework Core** (`None` / `PostgreSQL` / `SQL Server`): adds the provider package plus `Microsoft.EntityFrameworkCore.Design` to the layer that owns `Infrastructure/Context` (the dedicated Infrastructure project in 4-layer, or Domain in 3-layer), generates a starter `{ProjectName}DbContext`, wires up `AddDbContext` in `Program.cs`, and writes matching connection strings into `appsettings.Development.json`.
-- **Dockerfile & docker-compose.yml**: a multi-stage `Dockerfile` (SDK build → ASP.NET runtime) and a `docker-compose.yml` with an `api` service; when EF Core is also selected, a `db` service (Postgres or SQL Server) is included and wired up via `ConnectionStrings__DefaultConnection`.
-- **JWT Authentication boilerplate**: adds `Microsoft.AspNetCore.Authentication.JwtBearer`, registers bearer-token authentication/authorization, and wires up two sample endpoints: `POST /api/auth/token` (issues a token) and `GET /api/secure` (requires one), so you can see it working immediately. In Standard API style, these are an `AuthController` + `IAuthService`/`AuthService` instead of top-level endpoints.
-
-In microservice mode, each service gets its own `appsettings.*`, `DbContext`, `Dockerfile`, and `docker-compose.yml`.
-
-Said no to one of these and want it later? `BuildQuickPkg add efcore|jwt|docker|repository|env|caddy` retrofits it onto a project you already generated, no regeneration needed. See [Adding a Feature Later](docs/guides/adding-features-later.md).
-
-Project references are pre-wired according to Clean Architecture's dependency rule: `API → Application, Infrastructure`, `Infrastructure → Application, Domain`, `Application → Domain`, and `Domain` depends on nothing. The generated API project includes Swagger/OpenAPI, CORS, and Serilog structured logging out of the box, plus a sample `/api/health` endpoint, so the solution is immediately runnable and testable.
-
-**Two architecture options** are offered at generation time:
-- **4-layer**: a dedicated Infrastructure project (shown above)
-- **3-layer**: Infrastructure concerns (`Context/`, `Migrations/`) folded into `Domain/Infrastructure/` instead of a separate project, for smaller services that don't need the extra layer
-
-Test project generation is optional; when enabled, it references the API project directly and includes a working `WebApplicationFactory<Program>`-based test for the health-check endpoint.
-
-### Monolithic vs. microservice
-
-By default the tool generates a single solution (as above). Choose **Microservice** instead and it will ask how many services you need and what to name each one, then generate one fully independent Clean Architecture solution per service, with the same target framework, same architecture pattern, and same package versions across all of them:
-
-```
-ShopSystem/
-├── ShopSystem.sln              # aggregate solution, builds every service at once
-├── .gitignore
-├── README.md
-└── services/
-    ├── OrderService/
-    │   ├── OrderService.sln    # each service is also independently buildable/runnable
-    │   ├── src/OrderService_API/ ...
-    │   └── tests/OrderService.UnitTests/
-    ├── InventoryService/
-    │   └── ...
-    └── PaymentService/
-        └── ...
-```
-
-Each service gets its own HTTP/HTTPS ports, offset by 10 from your chosen base port so they don't collide when run side by side.
-
-### Structured logging (Serilog)
-
-Every generated API ships with [Serilog](https://serilog.net/) wired up via `Serilog.AspNetCore`: a console sink, `UseSerilogRequestLogging()` for per-request timing, and the standard fatal-exception/flush-on-shutdown bootstrap pattern in `Program.cs`.
-
-## Installation
+## installation
 
 ```bash
-dotnet tool install --global BuildQuickPkg
+dotnet tool install --global buildquickpkg
 ```
 
-Upgrading, downgrading to a specific version, and uninstalling are covered in [Managing your install](docs/guides/getting-started.md#managing-your-install).
+upgrading, downgrading to a specific version, and uninstalling are covered in [managing your install](docs/guides/getting-started.md#managing-your-install).
 
-## Usage
+## usage
 
 ```bash
-BuildQuickPkg
+buildquickpkg
 # or, to skip the project-name prompt:
-BuildQuickPkg MyAwesomeApi
+buildquickpkg myawesomeapi
 ```
 
-You'll be prompted interactively for:
+you'll be prompted interactively for:
 
-| Prompt | Options / Default |
+| prompt | options / default |
 | --- | --- |
-| Project Name | free text, default `MyAwesomeApi` (skipped if passed as an argument) |
-| Target Framework | `net8.0` / `net9.0` / `net10.0` |
-| Architecture Pattern | 4-layer (with Infrastructure) / 3-layer |
-| API Style | Minimal API / Standard API (Controllers + Services) |
-| Deployment Style | Monolithic / Microservice |
-| Number of services + a name for each | *(microservice only)* |
-| Include xUnit test project | yes / no, default yes |
-| Port | default `5200` |
-| HTTPS Port | default `5201` |
-| Add Entity Framework Core | `None` / `PostgreSQL` / `SQL Server` |
-| Add Dockerfile & docker-compose.yml | yes / no, default no |
-| Add JWT Authentication boilerplate | yes / no, default no |
+| project name | free text, default `myawesomeapi` (skipped if passed as an argument) |
+| target framework | `net8.0` / `net9.0` / `net10.0` |
+| architecture pattern | 4-layer (with infrastructure) / 3-layer |
+| [api style](DEVELOPMENT.md##api-style) | minimal api / standard api (controllers + services) |
+| [deployment style](DEVELOPMENT.md##monolithic-vs.-microservice) | monolithic / microservice |
+| number of services + a name for each | *(microservice only)* |
+| include xunit test project | yes / no, default yes |
+| port | default `5200` |
+| https port | default `5201` |
+| add entity framework core | `none` / `postgresql` / `sql server` |
+| add dockerfile & docker-compose.yml | yes / no, default no |
+| add jwt authentication boilerplate | yes / no, default no |
 
-Then run the generated API:
+then run the generated api:
 
 ```bash
-cd MyAwesomeApi/src/MyAwesomeApi_API
+cd myawesomeapi/src/myawesomeapi_api
 dotnet run
 ```
 
-## Requirements
+### clear explanation of how to use the tool
+Visit the [DEVELOPMENT.md](DEVELOPMENT.md) file for a full explanation of how to use the tool.
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download) or later
+### adding a new type to any c# project
 
-## Project source layout
-
-The tool itself follows the same separation-of-concerns principle it generates for you:
-
-```
-BuildQuickPkg/
-├── Program.cs                       # CLI entry point: routes to `add`, or runs the generation prompts
-├── Commands/                        # `BuildQuickPkg add <feature>`: retrofits a feature onto an existing project
-│   ├── AddFeatureCommand.cs         # Parses "efcore/jwt/docker/repository/env/caddy" and dispatches to the commands below
-│   ├── AddEfCoreCommand.cs
-│   ├── AddJwtCommand.cs
-│   ├── AddDockerCommand.cs
-│   ├── AddRepositoryCommand.cs      # Generic Repository/UnitOfWork (requires efcore first)
-│   ├── AddEnvCommand.cs             # .env with dummy values matching the project's actual setup
-│   ├── AddCaddyCommand.cs           # Caddyfile reverse proxy
-│   └── HelpText.cs                  # --help / -h output for the root command and `add`
-├── Scaffolding/
-│   ├── ScaffoldingConfig.cs         # Options record: naming, architecture, API style, ports, tests, EF/Docker/JWT
-│   ├── EfCoreProvider.cs            # None / PostgreSql / SqlServer
-│   ├── ApiStyle.cs                  # Minimal / Controller
-│   ├── SolutionScaffolder.cs        # Orchestrates folder creation, file writes, and `dotnet sln`
-│   ├── ProjectStructure.cs          # Resolves layer project names and the folder tree (new projects)
-│   ├── ExistingProject.cs           # Describes an already-generated project, resolved from disk
-│   └── ExistingProjectLocator.cs    # Locates ExistingProject from the current working directory
-├── Templates/
-│   ├── CsprojTemplates.cs           # .csproj content for each layer (4-layer, 3-layer, test)
-│   ├── ProgramTemplate.cs           # Generated API Program.cs (+ optional EF Core / JWT / Controller wiring)
-│   ├── ControllerTemplate.cs        # Health/Auth Controller + service pairs for Standard API style
-│   ├── RepositoryTemplate.cs        # Generic IRepository<T>/Repository<T> + IUnitOfWork/UnitOfWork
-│   ├── AppSettingsTemplate.cs       # appsettings.json / .Development.json / .Production.json
-│   ├── EfCoreTemplate.cs            # Generated DbContext + provider package/connection-string helpers
-│   ├── DockerTemplate.cs            # Dockerfile + docker-compose.yml
-│   ├── EnvTemplate.cs               # .env content matching the project's actual setup
-│   ├── CaddyTemplate.cs             # Caddyfile reverse proxy
-│   ├── HealthEndpointTestTemplate.cs # Generated xUnit health-check test
-│   ├── LaunchSettingsTemplate.cs
-│   └── GitignoreTemplate.cs
-└── Utilities/
-    ├── ProcessRunner.cs             # Wraps `dotnet` CLI process execution
-    ├── CsprojEditor.cs              # Adds PackageReferences to an existing .csproj (used by `add`)
-    ├── ProgramCsEditor.cs           # Patches an existing Program.cs at its stable markers (used by `add`)
-    ├── AppSettingsEditor.cs         # Merges JSON sections into an existing appsettings*.json (used by `add`)
-    ├── ProjectFeatureDetector.cs    # Reads an existing project's actual EF Core/JWT/API style/port (used by `add`)
-    └── NameValidation.cs            # Validates a project/service name is safe as a C# namespace + folder name
+```bash
+cd src/myawesomeapi_application/services
+buildquickpkg new interface iorderservice      # class | interface | struct | enum | record
 ```
 
-## Contributing
+creates `iorderservice.cs` with the namespace already filled in (`myawesomeapi_application.services`), worked out from the nearest `.csproj` and the folders below it. the namespace style matches what the project already uses; force one with `--file-scoped` or `--block`. works in any c# project, not just generated ones, and never overwrites an existing file.
 
-Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to get set up, add a new generation option, and test your change.
+## requirements
 
-## License
+- [.net 8 sdk](https://dotnet.microsoft.com/download) or later
 
-MIT. See [LICENSE](LICENSE).
+
+## contributing
+
+issues and pull requests are welcome. see [contributing.md](contributing.md) for how to get set up, add a new generation option, and test your change.
+
+## license
+
+mit. see [license](license).

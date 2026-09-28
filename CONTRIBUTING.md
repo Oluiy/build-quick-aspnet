@@ -24,7 +24,7 @@ The `docs/` site (rendered by Docsify at https://oluiy.github.io/build-quick-asp
 
 ## Project layout
 
-See the [Project source layout](README.md#project-source-layout) section of the README for how `Program.cs`, `Scaffolding/`, `Templates/`, and `Utilities/` fit together.
+See the [Project source layout](DEVELOPMENT.md#project-source-layout) section of the README for how `Program.cs`, `Scaffolding/`, `Templates/`, and `Utilities/` fit together.
 
 ## Adding a new generation option
 
