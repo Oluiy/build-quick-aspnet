@@ -13,6 +13,7 @@ internal static class HelpText
         AnsiConsole.MarkupLine("[bold]Usage[/]");
         AnsiConsole.MarkupLine("  BuildQuickPkg [[ProjectName]]           Generate a new solution interactively");
         AnsiConsole.MarkupLine("  BuildQuickPkg add <feature> [[option]]  Retrofit a feature onto an existing project");
+        AnsiConsole.MarkupLine("  BuildQuickPkg new <kind> <Name>        Create Name.cs here with its namespace filled in");
         AnsiConsole.MarkupLine("  BuildQuickPkg --help, -h               Show this help");
         AnsiConsole.MarkupLine("  BuildQuickPkg --version, -v            Show the installed version");
         AnsiConsole.WriteLine();
@@ -24,6 +25,8 @@ internal static class HelpText
         AnsiConsole.MarkupLine("  [bold]add[/] repository                   Add a generic Repository/UnitOfWork (requires efcore first)");
         AnsiConsole.MarkupLine("  [bold]add[/] env                          Add a .env with dummy values matching the project's setup");
         AnsiConsole.MarkupLine("  [bold]add[/] caddy                        Add a Caddyfile reverse proxy");
+        AnsiConsole.MarkupLine("  [bold]new[/] <class|interface|struct|enum|record> <Name> [[--file-scoped|--block]]");
+        AnsiConsole.MarkupLine("                                     New .cs file; namespace from the folder, style from the project");
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("Run [bold]BuildQuickPkg add --help[/] for details on retrofitting a feature.");
         AnsiConsole.WriteLine();
@@ -33,6 +36,7 @@ internal static class HelpText
         AnsiConsole.MarkupLine("  [grey]BuildQuickPkg MyAwesomeApi[/]             Generate, skipping the project-name prompt");
         AnsiConsole.MarkupLine("  [grey]BuildQuickPkg add efcore postgres[/]     Add EF Core to the project in the current directory");
         AnsiConsole.MarkupLine("  [grey]BuildQuickPkg add jwt[/]                 Add JWT authentication");
+        AnsiConsole.MarkupLine("  [grey]BuildQuickPkg new interface IOrderService[/]  Create IOrderService.cs in this folder's namespace");
         AnsiConsole.WriteLine();
 
         AnsiConsole.MarkupLine("Full docs: [underline]https://github.com/Oluiy/build-quick-aspnet/tree/main/docs[/]");
