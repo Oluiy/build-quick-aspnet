@@ -39,6 +39,13 @@ if (args.Length > 0 && string.Equals(args[0], "add", StringComparison.OrdinalIgn
     return succeeded ? 0 : 1;
 }
 
+// Before the project-name positional below: "new" is a C# keyword, so it can never
+// be a valid project name - intercepting it here takes nothing away.
+if (args.Length > 0 && string.Equals(args[0], "new", StringComparison.OrdinalIgnoreCase))
+{
+    return NewFileCommand.Run(args[1..]) ? 0 : 1;
+}
+
 AnsiConsole.Write(new FigletText("ASP.NET Core").Color(Color.Cyan1));
 
 string projectName;
