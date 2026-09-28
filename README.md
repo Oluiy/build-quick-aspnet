@@ -113,4 +113,4 @@ issues and pull requests are welcome. see [CONTRIBUTING.md](CONTRIBUTING.md) for
 
 ## license
 
-mit. see [LICENSE](LICENSE).
+see [LICENSE](LICENSE).
