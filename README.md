@@ -91,7 +91,7 @@ dotnet run
 ```
 
 ### clear explanation of how to use the tool
-Visit the [DEVELOPMENT.md](DEVELOPMENT.md) file for a full explanation of how to use the tool.
+Visit the [DEVELOPMENT.md](DEVELOPMENT.md) file for a full explanation of how to use the tool. What changed in each release: [CHANGELOG.md](CHANGELOG.md).
 
 ### adding a new type to any c# project
 
