@@ -13,6 +13,7 @@ BuildQuickPkg <ProjectName>   # skips the Project Name prompt
 ```bash
 BuildQuickPkg --help, -h      # usage and every command, right in the terminal
 BuildQuickPkg add --help      # usage for the add subcommand specifically
+BuildQuickPkg new <kind> <Name>  # a new .cs file with its namespace filled in (see below)
 BuildQuickPkg --version, -v   # installed version
 ```
 
@@ -37,17 +38,48 @@ Use arrow keys + Enter for the multiple-choice prompts (they're rendered by [Spe
 
 ## What each prompt controls
 
-- **Architecture Pattern**: see the [Architecture Guide](guides/architecture-guide.md) for exactly what each layer contains and where Entity Framework Core's `DbContext` ends up in each.
+- **Architecture Pattern**: see the [Architecture Guide](architecture-guide.md) for exactly what each layer contains and where Entity Framework Core's `DbContext` ends up in each.
 - **API Style**: Minimal API keeps every sample endpoint as a top-level `app.MapGet`/`app.MapPost` call in `Program.cs`. Standard API generates a Controller backed by an interface/service pair instead (the `Controllers/` and `Services/Interfaces`+`Services/Implementation` folders exist in every generated project either way; Standard API is what actually populates them). Both styles expose the exact same URLs, so this only changes how the code is organized, not what it does.
-- **Deployment Style**: Monolithic generates one solution; Microservice generates one independent solution per named service plus an aggregate root `.sln`. See [Microservices](guides/microservices.md).
+- **Deployment Style**: Monolithic generates one solution; Microservice generates one independent solution per named service plus an aggregate root `.sln`. See [Microservices](microservices.md).
 - **Port / HTTPS Port**: written to `Properties/launchSettings.json`. In microservice mode, each service after the first is offset by `+10` (service 1 gets 5200/5201, service 2 gets 5210/5211, and so on) so they don't collide when run side by side.
-- **Add Entity Framework Core**: see [Entity Framework Core](guides/entity-framework-core.md).
-- **Add Dockerfile & docker-compose.yml**: see [Docker](guides/docker.md).
-- **Add JWT Authentication boilerplate**: see [JWT Authentication](guides/jwt-authentication.md).
+- **Add Entity Framework Core**: see [Entity Framework Core](entity-framework-core.md).
+- **Add Dockerfile & docker-compose.yml**: see [Docker](docker.md).
+- **Add JWT Authentication boilerplate**: see [JWT Authentication](jwt-authentication.md).
 
 ## Adding a feature after generation
 
-Said no to Entity Framework Core, Docker, or JWT the first time? You don't have to regenerate the project: `BuildQuickPkg add efcore|jwt|docker|repository|env|caddy` retrofits any of them onto a project you already have. See [Adding a Feature Later](guides/adding-features-later.md) for the full command reference.
+Said no to Entity Framework Core, Docker, or JWT the first time? You don't have to regenerate the project: `BuildQuickPkg add efcore|jwt|docker|repository|env|caddy` retrofits any of them onto a project you already have. See [Adding a Feature Later](adding-features-later.md) for the full command reference.
+
+## Creating a new file
+
+```bash
+BuildQuickPkg new <class|interface|struct|enum|record> <Name> [--file-scoped | --block]
+```
+
+Creates `<Name>.cs` in the current directory, instead of a blank file you then fill in by hand. Leave out the kind or the name and it asks for them. Works in any C# project, not only ones BuildQuickPkg generated.
+
+```csharp
+// BuildQuickPkg new class OrderMapper, run from BuildQuickPkg/Scaffolding
+namespace BuildQuickPkg.Scaffolding;
+
+public class OrderMapper
+{
+}
+```
+
+**Namespace:** the nearest `.csproj` at or above the current directory gives the root (its `<RootNamespace>`, or the project file's name), then each folder down to where you are adds a segment - the same rule Visual Studio and Rider use. Folder names that aren't valid identifiers are fixed up: `2024-reports` becomes `_2024_reports`.
+
+**Namespace style**, in order of precedence:
+
+| Source | Result |
+| --- | --- |
+| `--file-scoped` / `--block` | exactly what you asked for |
+| the project's existing `.cs` files | whichever style most of them use, so the new file never looks out of place |
+| neither (empty project) | file-scoped on .NET 6+ (C# 10), block-scoped on older targets where file-scoped doesn't compile |
+
+**Usings:** if the project has `<ImplicitUsings>enable</ImplicitUsings>` (in the `.csproj` or a `Directory.Build.props` above it), the file gets none, since the SDK already imports `System`, `System.Linq` and the rest at build time, whatever editor you use. Otherwise it starts with `using System;`, `System.Collections.Generic`, `System.Linq` and `System.Threading.Tasks`. Enums never get usings.
+
+**It refuses, and writes nothing, when:** `<Name>.cs` already exists; there's no `.csproj` above you, or two in the same folder (it can't tell which project you mean); the name isn't a valid C# identifier; or you ask for a `record` in a project older than C# 9 (.NET 5). Naming an interface without the `I` prefix still works, with a tip about the .NET convention.
 
 ## Exit codes / non-interactive use
 

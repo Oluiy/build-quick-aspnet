@@ -12,10 +12,28 @@
 <body>
   <div id="app"></div>
   <script>
+    // With relativePath on, the homepage rendered at "/" would resolve its links
+    // (docker.md) against "/" instead of "guides/" - so the root always goes to
+    // /guides/, on first load and on any later navigation back to it.
+    function toGuidesHome() {
+      if (!location.hash || location.hash === '#/' || location.hash === '#') location.replace('#/guides/');
+    }
+    toGuidesHome();
+    window.addEventListener('hashchange', toGuidesHome);
+  </script>
+  <script>
     window.$docsify = {
       name: 'BuildQuickPkg',
       repo: 'https://github.com/Oluiy/build-quick-aspnet',
       homepage: 'guides/README.md',
+      // Resolve links relative to the page they're in, the same way GitHub does,
+      // so one link (`docker.md`) works both on this site and when the file is
+      // read directly on GitHub. Sidebar links are root-absolute (/guides/...)
+      // because relative ones would resolve against whichever page is open.
+      relativePath: true,
+      // The homepage lives at /guides/ (not /) so its relative links resolve from
+      // guides/, where the file actually is. The site name links there too.
+      nameLink: '#/guides/',
       loadSidebar: true,
       subMaxLevel: 0,
       auto2top: true,
@@ -47,7 +65,9 @@
     }
   </script>
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+  <!-- Pinned to a major version: unversioned URLs follow "latest", so a new major release
+       could break the site without any change here. Search must match the docsify core (v4). -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@3/dist/docsify-copy-code.min.js"></script>
 </body>
 </html>
