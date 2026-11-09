@@ -72,10 +72,14 @@ internal static class NewFileCommand
             : flags.Contains("--block") ? NamespaceType.BlockScoped
             : AddNewFile.DetectNamespaceStyle(projectFile);
 
-        File.WriteAllText(filePath, AddFileTemplate.Generate(@namespace, typeName, fileType.Value, style));
+        // Projects with ImplicitUsings already import System etc. at build time, whatever editor is
+        // used, so only projects without it get the usings written into the file.
+        var includeUsings = !AddNewFile.UsesImplicitUsings(projectFile);
+        File.WriteAllText(filePath, AddFileTemplate.Generate(@namespace, typeName, fileType.Value, style, includeUsings));
 
         var styleLabel = style == NamespaceType.FileScoped ? "file-scoped" : "block-scoped";
-        AnsiConsole.MarkupLine($"[green]Created[/] {Markup.Escape(typeName)}.cs [grey]({fileType.Value.ToString().ToLowerInvariant()} in {Markup.Escape(@namespace)}, {styleLabel} namespace)[/]");
+        var usingsLabel = includeUsings && fileType != FileType.Enum ? ", common usings added" : "";
+        AnsiConsole.MarkupLine($"[green]Created[/] {Markup.Escape(typeName)}.cs [grey]({fileType.Value.ToString().ToLowerInvariant()} in {Markup.Escape(@namespace)}, {styleLabel} namespace{usingsLabel})[/]");
         if (fileType == FileType.Interface && !(typeName.Length > 1 && typeName[0] == 'I' && char.IsUpper(typeName[1])))
         {
             AnsiConsole.MarkupLine($"[yellow]Tip:[/] .NET convention names interfaces with an I prefix, e.g. I{Markup.Escape(typeName)}.");
