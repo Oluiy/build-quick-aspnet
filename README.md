@@ -9,7 +9,7 @@ an interactive .net cli tool that scaffolds a complete **clean architecture** as
 
 ![buildquickpkg demo: running the cli to generate a clean architecture solution with ef core, docker, and jwt boilerplate](https://raw.githubusercontent.com/Oluiy/build-quick-aspnet/main/docs/assets/demo.gif)
 
-📖 **[full documentation](https://oluiy.github.io/build-quick-aspnet/)** (or [browse in-repo](docs/guides/readme.md)): getting started, cli reference, architecture guide, ef core, docker, jwt, microservices, and troubleshooting.
+📖 **[full documentation](https://oluiy.github.io/build-quick-aspnet/)** (or [browse in-repo](docs/guides/README.md)): getting started, cli reference, architecture guide, ef core, docker, jwt, microservices, and troubleshooting.
 
 ## what it generates
 
@@ -73,8 +73,8 @@ you'll be prompted interactively for:
 | project name | free text, default `myawesomeapi` (skipped if passed as an argument) |
 | target framework | `net8.0` / `net9.0` / `net10.0` |
 | architecture pattern | 4-layer (with infrastructure) / 3-layer |
-| [api style](DEVELOPMENT.md##api-style) | minimal api / standard api (controllers + services) |
-| [deployment style](DEVELOPMENT.md##monolithic-vs.-microservice) | monolithic / microservice |
+| [api style](DEVELOPMENT.md#api-style) | minimal api / standard api (controllers + services) |
+| [deployment style](DEVELOPMENT.md#monolithic-vs-microservice) | monolithic / microservice |
 | number of services + a name for each | *(microservice only)* |
 | include xunit test project | yes / no, default yes |
 | port | default `5200` |

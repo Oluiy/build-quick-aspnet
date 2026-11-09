@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+
+# A newer push to the same branch cancels the older, now-outdated run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke-test:
+    name: Generate, build and test scaffolded solutions
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # The generated solutions target all three, so the runner needs all three SDKs.
+      - name: Setup .NET SDKs
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Build the tool
+        run: dotnet build BuildQuickPkg.csproj -c Release
+
+      - name: Run smoke tests
+        run: dotnet test tests/BuildQuickPkg.SmokeTests -c Release --logger "console;verbosity=normal"
+
+      - name: Check the package still packs
+        run: dotnet pack BuildQuickPkg.csproj -c Release -o ./nupkg

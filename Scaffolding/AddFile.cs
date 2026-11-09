@@ -95,6 +95,23 @@ internal static class AddNewFile
         return match.Success && int.Parse(match.Groups[1].Value) >= 5 ? int.Parse(match.Groups[1].Value) + 4 : 8;
     }
 
+    /// <summary>
+    /// Whether the SDK already imports System, System.Linq, etc. for this project (ImplicitUsings).
+    /// Checks the project file first, then any Directory.Build.props above it, since teams often
+    /// set it once for the whole repo there. The closest setting wins.
+    /// </summary>
+    public static bool UsesImplicitUsings(string projectFile)
+    {
+        var value = ReadProperty(projectFile, "ImplicitUsings");
+        for (var dir = new FileInfo(projectFile).Directory; value is null && dir is not null; dir = dir.Parent)
+        {
+            var props = Path.Combine(dir.FullName, "Directory.Build.props");
+            if (File.Exists(props)) value = ReadProperty(props, "ImplicitUsings");
+        }
+        return value is not null
+            && (value.Equals("enable", StringComparison.OrdinalIgnoreCase) || value.Equals("true", StringComparison.OrdinalIgnoreCase));
+    }
+
     // === Private Helpers ===
 
     private static bool IsBuildOutput(string path) =>

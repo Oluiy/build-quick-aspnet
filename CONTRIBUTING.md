@@ -35,7 +35,15 @@ See the [Project source layout](DEVELOPMENT.md#project-source-layout) section of
 
 ## Testing your change
 
-There's no automated test suite for the generator itself yet (contributions welcome!). Before opening a PR, verify by hand:
+The smoke tests generate real solutions for a spread of option combinations (every target framework, both layer counts, both API styles, monolith and microservices, each database and add-on), then build them and run their tests. CI runs them on every push and pull request, and the release workflow won't publish if they fail. Run them locally with:
+
+```bash
+dotnet test tests/BuildQuickPkg.SmokeTests
+```
+
+They need the .NET 8, 9 and 10 SDKs installed and take about 5 minutes. If you add a generation option, add a case for it in `tests/BuildQuickPkg.SmokeTests/GeneratedSolutionTests.cs`.
+
+To check a change by hand as well:
 
 1. `dotnet build` the tool itself: must be warning/error free.
 2. Run it against a scratch directory and confirm the generated tree looks right:
