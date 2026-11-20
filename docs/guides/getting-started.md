@@ -2,7 +2,7 @@
 
 ## 1. Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download) or later installed (`dotnet --version` should print `8.0.x` or higher)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download) or later installed (`dotnet --version` should print `10.0.x` or higher)
 - A terminal
 
 That's it: no other tooling is required to generate and run a plain API. Docker and a database are only needed if you opt into those prompts.
