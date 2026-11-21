@@ -22,7 +22,7 @@ Everything else is asked interactively, in this order:
 | # | Prompt | Options | Default |
 | --- | --- | --- | --- |
 | 1 | Project Name | free text | `MyAwesomeApi` (skipped if passed as an argument) |
-| 2 | .NET Target Framework | `net8.0` / `net9.0` / `net10.0` | (must choose) |
+| 2 | .NET Target Framework | `net10.0` / `net11.0` / `net9.0` / `net8.0` | `net10.0` (highlighted first; net8.0 and net9.0 are out of support) |
 | 3 | Architecture Pattern | 4-layer (API, Application, Domain, Infrastructure) / 3-layer (API, Application, Domain) | (must choose) |
 | 4 | API Style | Minimal API (top-level Map* endpoints) / Standard API (Controllers + Services) | (must choose) |
 | 5 | Deployment Style | Monolithic / Microservice | (must choose) |

@@ -66,7 +66,15 @@ else
 var targetFramework = AnsiConsole.Prompt(
     new SelectionPrompt<string>()
         .Title("Which [bold yellow].NET Target Framework[/] would you like to use?")
-        .AddChoices(["net8.0", "net9.0", "net10.0"]));
+        // net10.0 first so it's the highlighted default: it's the LTS release, and it's supported
+        // for exactly as long as net11.0 (both until 14 Nov 2028).
+        .AddChoices(["net10.0", "net11.0", "net9.0", "net8.0"])
+        .UseConverter(tfm => tfm switch
+        {
+            "net10.0" => "net10.0 [grey](LTS, recommended)[/]",
+            "net11.0" => "net11.0 [grey](latest, STS)[/]",
+            _ => $"{tfm} [grey](out of support since 10 Nov 2026)[/]",
+        }));
 
 var archType = AnsiConsole.Prompt(
     new SelectionPrompt<string>()

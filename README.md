@@ -71,7 +71,7 @@ you'll be prompted interactively for:
 | prompt | options / default |
 | --- | --- |
 | project name | free text, default `myawesomeapi` (skipped if passed as an argument) |
-| target framework | `net8.0` / `net9.0` / `net10.0` |
+| target framework | `net10.0` (default, LTS) / `net11.0` / `net9.0` / `net8.0` (net8.0 and net9.0 are out of support) |
 | architecture pattern | 4-layer (with infrastructure) / 3-layer |
 | [api style](DEVELOPMENT.md#api-style) | minimal api / standard api (controllers + services) |
 | [deployment style](DEVELOPMENT.md#monolithic-vs-microservice) | monolithic / microservice |

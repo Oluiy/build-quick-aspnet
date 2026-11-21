@@ -21,10 +21,10 @@ There's no in-place "reconfigure"; delete the generated folder (or generate into
 **`dotnet build` fails right after generation**
 This shouldn't happen; file an issue with the exact prompts/answers you used (see below) if it does. First things to check yourself:
 - `dotnet --version` is 8.0 or later.
-- If you picked `net9.0` or `net10.0` as the target framework, make sure that SDK is actually installed (`dotnet --list-sdks`); BuildQuickPkg lets you pick a TFM the generator itself doesn't require, but your machine still needs the matching SDK to build it.
+- If you picked a target framework other than the newest SDK you have, make sure that SDK is actually installed (`dotnet --list-sdks`); BuildQuickPkg lets you pick a TFM the generator itself doesn't require, but your machine still needs the matching SDK to build it.
 
 **NuGet restore fails / can't find a package**
-Usually a network issue or a very new target framework (e.g. `net10.0` while it's still in preview) where a dependency hasn't published a matching package version yet. Try `net8.0` or `net9.0` if `net10.0` restore fails.
+Usually a network issue or a very new target framework (e.g. one still in preview) where a dependency hasn't published a matching package version yet. Try `net10.0` (the LTS release) if a newer one fails to restore.
 
 ## Entity Framework Core
 
