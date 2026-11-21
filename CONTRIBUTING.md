@@ -41,7 +41,7 @@ The smoke tests generate real solutions for a spread of option combinations (eve
 dotnet test tests/BuildQuickPkg.SmokeTests
 ```
 
-They need the .NET 8, 9 and 10 SDKs installed and take about 5 minutes. If you add a generation option, add a case for it in `tests/BuildQuickPkg.SmokeTests/GeneratedSolutionTests.cs`.
+They need the .NET 8, 9, 10 and 11 SDKs installed and take about 5 minutes. If you add a generation option, add a case for it in `tests/BuildQuickPkg.SmokeTests/GeneratedSolutionTests.cs`.
 
 To check a change by hand as well:
 

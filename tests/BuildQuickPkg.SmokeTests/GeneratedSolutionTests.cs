@@ -30,6 +30,10 @@ public class GeneratedSolutionTests
             new("net8.0", FourLayer: true, ApiStyle.Controller, Microservice: true, Tests: true, EfCoreProvider.PostgreSql, Docker: true, Jwt: true),
         ["net10 · microservices · 3-layer · minimal · jwt"] =
             new("net10.0", FourLayer: false, ApiStyle.Minimal, Microservice: true, Tests: true, EfCoreProvider.None, Docker: false, Jwt: true),
+        ["net11 · 4-layer · controllers · postgres · docker · jwt"] =
+            new("net11.0", FourLayer: true, ApiStyle.Controller, Microservice: false, Tests: true, EfCoreProvider.PostgreSql, Docker: true, Jwt: true),
+        ["net11 · 3-layer · minimal · sqlserver"] =
+            new("net11.0", FourLayer: false, ApiStyle.Minimal, Microservice: false, Tests: true, EfCoreProvider.SqlServer, Docker: false, Jwt: false),
     };
 
     public static IEnumerable<object[]> CaseNames => Cases.Keys.Select(name => new object[] { name });
