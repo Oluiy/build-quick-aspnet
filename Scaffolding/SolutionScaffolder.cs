@@ -264,7 +264,28 @@ public static class SolutionScaffolder
             }
         }
 
-        ProcessRunner.RunDotnetCommand(["sln", "add", .. projectPaths], slnDirectory);
+        // Since SDK 10, `sln add` also adds every project a listed project references
+        // (--include-references, on by default). SDK 11 then rejects our own entry for that same
+        // project ("Solution folder 'src' already contains a project with the filename ..."), so
+        // turn it off: projectPaths already lists every project. SDK 9 and older don't have the
+        // option and would reject it, so it's only passed where it exists.
+        List<string> addArguments = ["sln", "add", .. projectPaths];
+        if (SdkMajorVersion(slnDirectory) >= 10)
+        {
+            addArguments.AddRange(["--include-references", "false"]);
+        }
+
+        ProcessRunner.RunDotnetCommand(addArguments, slnDirectory);
+    }
+
+    /// <summary>
+    /// The major version of the SDK that <c>dotnet</c> resolves to in <paramref name="directory"/>
+    /// (a global.json above it can pin an older one), e.g. <c>11</c> for <c>11.0.100</c>; 0 if unreadable.
+    /// </summary>
+    private static int SdkMajorVersion(string directory)
+    {
+        var version = ProcessRunner.RunDotnetCommand(["--version"], directory).Trim();
+        return int.TryParse(version.Split('.')[0], out var major) ? major : 0;
     }
 
     private static string RelativeCsprojPath(string slnDirectory, string srcDirectory, string projectName)
