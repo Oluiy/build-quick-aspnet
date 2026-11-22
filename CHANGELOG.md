@@ -25,6 +25,11 @@ Every notable change to BuildQuickPkg, newest first. The format follows
   those SDKs.
 
 ### Fixed
+- **Generation failed on machines with the .NET 11 SDK**, for every target framework, with
+  *"Solution folder 'src' already contains a project with the filename ..."*. Since SDK 10,
+  `dotnet sln add` also adds each listed project's references, and SDK 11 rejects the explicit
+  entry for a project it already pulled in. BuildQuickPkg lists every project itself, so it now
+  turns that off (`--include-references false`) on SDK 10 and newer.
 - **BuildQuickPkg failed to start on machines without the exact runtime it was built for.**
   A machine with only .NET 10 or .NET 11 installed got *"You must install or update .NET to
   run this application"*. The tool now rolls forward to any newer runtime

@@ -17,8 +17,9 @@ internal static class ProcessRunner
     /// a name with a stray space in it) is never mis-split into multiple arguments by the OS shell.
     /// </param>
     /// <param name="workingDirectory">The directory the command is executed from.</param>
+    /// <returns>What the command wrote to standard output.</returns>
     /// <exception cref="InvalidOperationException">The process could not be started, or exited with a non-zero code.</exception>
-    public static void RunDotnetCommand(IEnumerable<string> arguments, string workingDirectory)
+    public static string RunDotnetCommand(IEnumerable<string> arguments, string workingDirectory)
     {
         var startInfo = new ProcessStartInfo
         {
@@ -44,12 +45,14 @@ internal static class ProcessRunner
         var stderrTask = process.StandardError.ReadToEndAsync();
         process.WaitForExit();
         var stderr = stderrTask.GetAwaiter().GetResult();
-        _ = stdoutTask.GetAwaiter().GetResult();
+        var stdout = stdoutTask.GetAwaiter().GetResult();
 
         if (process.ExitCode != 0)
         {
             throw new InvalidOperationException(
                 $"'dotnet {string.Join(' ', arguments)}' failed with exit code {process.ExitCode} in '{workingDirectory}':\n{stderr}");
         }
+
+        return stdout;
     }
 }
