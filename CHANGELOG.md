@@ -6,7 +6,29 @@ Every notable change to BuildQuickPkg, newest first. The format follows
 
 ## [Unreleased]
 
+### Added
+- **`net11.0` target framework.** .NET 11 shipped on 10 Nov 2026 (STS, supported until
+  14 Nov 2028). The framework-matched packages (JWT bearer, EF Core, MVC testing) already
+  resolve to `11.0.*`, and the Docker template uses the `sdk:11.0` / `aspnet:11.0` images.
+- **`BuildQuickPkg new` adds the usings a file needs when the project doesn't.** In a project
+  without `ImplicitUsings` (checked in the .csproj and any `Directory.Build.props` above it),
+  new files start with `using System;`, `System.Collections.Generic`, `System.Linq` and
+  `System.Threading.Tasks`, so they compile straight away. Projects with implicit usings get
+  none, as before, and enums never get any.
+
+### Changed
+- **The framework prompt now leads with `net10.0`** (LTS, supported until 14 Nov 2028, the same
+  day as net11.0) and labels `net8.0` and `net9.0` as out of support, which they have been since
+  10 Nov 2026. Both stay selectable for maintaining existing projects.
+- **The tool itself now runs on .NET 10 or newer.** It targeted net8.0, which is out of
+  support. Generating net8.0 and net9.0 solutions still works; building them still needs
+  those SDKs.
+
 ### Fixed
+- **BuildQuickPkg failed to start on machines without the exact runtime it was built for.**
+  A machine with only .NET 10 or .NET 11 installed got *"You must install or update .NET to
+  run this application"*. The tool now rolls forward to any newer runtime
+  (`RollForward=Major`).
 - **Documentation links now work both on the docs site and on GitHub.** Links
   between guides used a `guides/…` prefix that only worked on the site; on GitHub
   they pointed at a folder that doesn't exist. Two links were also broken *on the
